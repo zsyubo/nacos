@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 服务信息更新服务。
+ *
  * Service information update service.
  *
  * @author xiweng.yy
@@ -63,6 +65,7 @@ public class ServiceInfoUpdateService implements Closeable {
     
     public ServiceInfoUpdateService(Properties properties, ServiceInfoHolder serviceInfoHolder,
             NamingClientProxy namingClientProxy, InstancesChangeNotifier changeNotifier) {
+
         this.executor = new ScheduledThreadPoolExecutor(initPollingThreadCount(properties),
                 new NameThreadFactory("com.alibaba.nacos.client.naming.updater"));
         this.serviceInfoHolder = serviceInfoHolder;

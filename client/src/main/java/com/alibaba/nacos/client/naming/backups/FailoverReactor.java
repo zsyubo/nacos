@@ -46,12 +46,14 @@ import java.util.concurrent.TimeUnit;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 故障转移反应器。
  * Failover reactor.
  *
  * @author nkorange
  */
 public class FailoverReactor implements Closeable {
-    
+
+    //FailoverReactor中初始化会延迟10秒后做一次备份，如果发现缓存的/failover目录下有文件，就会写入本地。
     private static final String FAILOVER_DIR = "/failover";
     
     private static final String IS_FAILOVER_MODE = "1";
@@ -71,10 +73,15 @@ public class FailoverReactor implements Closeable {
     private final ServiceInfoHolder serviceInfoHolder;
     
     private final ScheduledExecutorService executorService;
-    
+
+    //ServiceInfoHolder#ServiceInfoHolder
+    //    serviceInfoHolder: ServiceInfoHolder
+    //    cacheDir: 缓存存放目录
     public FailoverReactor(ServiceInfoHolder serviceInfoHolder, String cacheDir) {
         this.serviceInfoHolder = serviceInfoHolder;
+        // 故障转移时的文件夹
         this.failoverDir = cacheDir + FAILOVER_DIR;
+        // 定时任务
         // init executorService
         this.executorService = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             @Override
@@ -91,19 +98,21 @@ public class FailoverReactor implements Closeable {
     /**
      * Init.
      */
+    //FailoverReactor#FailoverReactor()
     public void init() {
-        
+        // 5秒执行一次
         executorService.scheduleWithFixedDelay(new SwitchRefresher(), 0L, 5000L, TimeUnit.MILLISECONDS);
-        
+        //首次延迟30分钟，一天执行一次，备份到磁盘
         executorService.scheduleWithFixedDelay(new DiskFileWriter(), 30, DAY_PERIOD_MINUTES, TimeUnit.MINUTES);
-        
+
+        // 10秒执行一次  去检查磁盘缓存是否还存在
         // backup file on startup if failover directory is empty.
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
                     File cacheDir = new File(failoverDir);
-                    
+
                     if (!cacheDir.exists() && !cacheDir.mkdirs()) {
                         throw new IllegalStateException("failed to create cache dir: " + failoverDir);
                     }
@@ -141,28 +150,34 @@ public class FailoverReactor implements Closeable {
         ThreadUtils.shutdownThreadPool(executorService, NAMING_LOGGER);
         NAMING_LOGGER.info("{} do shutdown stop", className);
     }
-    
+
+    //调用者：FailoverReactor#init
     class SwitchRefresher implements Runnable {
-        
+        // 最后更新时间
         long lastModifiedMillis = 0L;
         
         @Override
         public void run() {
             try {
+                // 故障切换文件
                 File switchFile = new File(failoverDir + UtilAndComs.FAILOVER_SWITCH);
                 if (!switchFile.exists()) {
                     switchParams.put("failover-mode", "false");
                     NAMING_LOGGER.debug("failover switch is not found, " + switchFile.getName());
                     return;
                 }
-                
+                // 文件的最后修改时间
                 long modified = switchFile.lastModified();
-                
+
+                // 如果文件的修改时间>内存中的时间，这种只有初始化的时候才有可能吧
                 if (lastModifiedMillis < modified) {
                     lastModifiedMillis = modified;
+                    // 获取文件中内容
                     String failover = ConcurrentDiskUtil.getFileContent(failoverDir + UtilAndComs.FAILOVER_SWITCH,
                             Charset.defaultCharset().toString());
+                    // 内容不为空
                     if (!StringUtils.isEmpty(failover)) {
+                        // 根据换行符进行切割
                         String[] lines = failover.split(DiskCache.getLineSeparator());
                         
                         for (String line : lines) {
@@ -186,7 +201,10 @@ public class FailoverReactor implements Closeable {
             }
         }
     }
-    
+
+    /**
+     * 备份回复
+     */
     class FailoverFileReader implements Runnable {
         
         @Override
@@ -195,7 +213,7 @@ public class FailoverReactor implements Closeable {
             
             BufferedReader reader = null;
             try {
-                
+                // 缓存文件
                 File cacheDir = new File(failoverDir);
                 if (!cacheDir.exists() && !cacheDir.mkdirs()) {
                     throw new IllegalStateException("failed to create cache dir: " + failoverDir);
@@ -275,7 +293,11 @@ public class FailoverReactor implements Closeable {
             }
         }
     }
-    
+
+    /**
+     * 故障转义
+     * @return
+     */
     public boolean isFailoverSwitch() {
         return Boolean.parseBoolean(switchParams.get(FAILOVER_MODE_PARAM));
     }

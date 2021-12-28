@@ -50,6 +50,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 管理sever列表，
+ *
  * Server list manager.
  *
  * @author xiweng.yy
@@ -63,7 +65,8 @@ public class ServerListManager implements ServerListFactory, Closeable {
     private final String namespace;
     
     private final AtomicInteger currentIndex = new AtomicInteger();
-    
+
+    // nacos server地址列表
     private final List<String> serverList = new ArrayList<>();
     
     private List<String> serversFromEndpoint = new ArrayList<>();
@@ -71,7 +74,8 @@ public class ServerListManager implements ServerListFactory, Closeable {
     private ScheduledExecutorService refreshServerListExecutor;
     
     private String endpoint;
-    
+
+    // 这个只有server list为1的时候才有值。
     private String nacosDomain;
     
     private long lastServerListRefreshTime = 0L;
@@ -79,7 +83,8 @@ public class ServerListManager implements ServerListFactory, Closeable {
     public ServerListManager(Properties properties) {
         this(properties, null);
     }
-    
+
+    //NamingClientProxyDelegate#NamingClientProxyDelegate
     public ServerListManager(Properties properties, String namespace) {
         this.namespace = namespace;
         initServerAddr(properties);
@@ -87,8 +92,11 @@ public class ServerListManager implements ServerListFactory, Closeable {
             currentIndex.set(new Random().nextInt(serverList.size()));
         }
     }
-    
+
     private void initServerAddr(Properties properties) {
+        // 从这里能看到其实nacos更推荐用这种端点的方式来做统一配置，这样server列表更新了，也能感知到
+
+        // 是否从端点去获取服务列表
         this.endpoint = InitUtils.initEndpoint(properties);
         if (StringUtils.isNotEmpty(endpoint)) {
             this.serversFromEndpoint = getServerListFromEndpoint();
@@ -98,6 +106,7 @@ public class ServerListManager implements ServerListFactory, Closeable {
                     .scheduleWithFixedDelay(this::refreshServerListIfNeed, 0, refreshServerListInternal,
                             TimeUnit.MILLISECONDS);
         } else {
+            //没有就去那serverAddr的配置，，中间是逗号分隔多个server
             String serverListFromProps = properties.getProperty(PropertyKeyConst.SERVER_ADDR);
             if (StringUtils.isNotEmpty(serverListFromProps)) {
                 this.serverList.addAll(Arrays.asList(serverListFromProps.split(",")));

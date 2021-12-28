@@ -45,7 +45,8 @@ public class NamingGrpcConnectionEventListener implements ConnectionEventListene
     private final ConcurrentMap<String, Instance> registeredInstanceCached = new ConcurrentHashMap<>();
     
     private final Set<String> subscribes = new ConcurrentHashSet<String>();
-    
+
+    //NamingGrpcClientProxy#NamingGrpcClientProxy
     public NamingGrpcConnectionEventListener(NamingGrpcClientProxy clientProxy) {
         this.clientProxy = clientProxy;
     }

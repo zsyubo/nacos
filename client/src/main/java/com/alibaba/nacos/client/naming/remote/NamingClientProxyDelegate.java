@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 委托命名客户端代理。 这地方是屏蔽底层网络细节，把一些操作进行封装
  * Delegate of naming client proxy.
  *
  * @author xiweng.yy
@@ -63,7 +64,10 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     private final SecurityProxy securityProxy;
     
     private ScheduledExecutorService executorService;
-    
+
+    //NacosNamingService#init
+    //    properties: NacosProperties
+    //    serviceInfoHolder: ServiceInfoHolder
     public NamingClientProxyDelegate(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
             InstancesChangeNotifier changeNotifier) throws NacosException {
         this.serviceInfoUpdateService = new ServiceInfoUpdateService(properties, serviceInfoHolder, this,
@@ -71,13 +75,17 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
         this.serverListManager = new ServerListManager(properties, namespace);
         this.serviceInfoHolder = serviceInfoHolder;
         this.securityProxy = new SecurityProxy(properties, NamingHttpClientManager.getInstance().getNacosRestTemplate());
+        // 初始化安全模块，底层是去登陆server
         initSecurityProxy();
+        // 支持http方式
         this.httpClientProxy = new NamingHttpClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
+        // 支持GRPC方式
         this.grpcClientProxy = new NamingGrpcClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
     }
-    
+
+    // NamingClientProxyDelegate#NamingClientProxyDelegate
     private void initSecurityProxy() {
         this.executorService = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r);

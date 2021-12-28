@@ -116,7 +116,8 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
     private final int maxRetry;
     
     private int serverPort = DEFAULT_SERVER_PORT;
-    
+
+    //NamingClientProxyDelegate#NamingClientProxyDelegate
     public NamingHttpClientProxy(String namespaceId, SecurityProxy securityProxy, ServerListManager serverListManager,
             Properties properties, ServiceInfoHolder serviceInfoHolder) {
         super(securityProxy, properties);

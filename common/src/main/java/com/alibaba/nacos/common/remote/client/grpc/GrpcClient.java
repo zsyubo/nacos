@@ -86,6 +86,8 @@ public abstract class GrpcClient extends RpcClient {
     }
     
     /**
+     * 使用特定的服务器地址创建一个新的通道。
+     *
      * create a new channel with specific server address.
      *
      * @param serverIp   serverIp.

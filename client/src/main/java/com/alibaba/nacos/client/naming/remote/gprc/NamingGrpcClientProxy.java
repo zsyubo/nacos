@@ -73,7 +73,11 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     private final RpcClient rpcClient;
     
     private final NamingGrpcConnectionEventListener namingGrpcConnectionEventListener;
-    
+
+    //NamingClientProxyDelegate#NamingClientProxyDelegate
+    //    serverListFactory: new ServerListManager
+    //    properties: NacosProperties
+    //    serviceInfoHolder: ServiceInfoHolder
     public NamingGrpcClientProxy(String namespaceId, SecurityProxy securityProxy, ServerListFactory serverListFactory,
             Properties properties, ServiceInfoHolder serviceInfoHolder) throws NacosException {
         super(securityProxy, properties);
@@ -87,9 +91,15 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         this.namingGrpcConnectionEventListener = new NamingGrpcConnectionEventListener(this);
         start(serverListFactory, serviceInfoHolder);
     }
-    
+
+    //NamingGrpcClientProxy#NamingGrpcClientProxy
+    //    serverListFactory: new ServerListManager
+    //    serviceInfoHolder: ServiceInfoHolder
     private void start(ServerListFactory serverListFactory, ServiceInfoHolder serviceInfoHolder) throws NacosException {
+        // 设置服务list工厂，同时设置启动状态
+        // WAIT_INIT->INITIALIZED
         rpcClient.serverListFactory(serverListFactory);
+        // INITIALIZED->STARTING
         rpcClient.start();
         rpcClient.registerServerRequestHandler(new NamingPushRequestHandler(serviceInfoHolder));
         rpcClient.registerConnectionListener(namingGrpcConnectionEventListener);
@@ -181,11 +191,14 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     
     @Override
     public ServiceInfo subscribe(String serviceName, String groupName, String clusters) throws NacosException {
+        // 构建一个request
         SubscribeServiceRequest request = new SubscribeServiceRequest(namespaceId, groupName, serviceName, clusters,
                 true);
         SubscribeServiceResponse response = requestToServer(request, SubscribeServiceResponse.class);
+        // 缓存请求结果
         namingGrpcConnectionEventListener
                 .cacheSubscriberForRedo(NamingUtils.getGroupedName(serviceName, groupName), clusters);
+        // 获取服务信息
         return response.getServiceInfo();
     }
     
@@ -210,9 +223,12 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     private <T extends Response> T requestToServer(AbstractNamingRequest request, Class<T> responseClass)
             throws NacosException {
         try {
+            // 安全信息head，也就是登陆的
             request.putAllHeader(getSecurityHeaders());
+            // 业务操作的head
             request.putAllHeader(getSpasHeaders(
                     NamingUtils.getGroupedNameOptional(request.getServiceName(), request.getGroupName())));
+            // 去请求
             Response response =
                     requestTimeout < 0 ? rpcClient.request(request) : rpcClient.request(request, requestTimeout);
             if (ResponseCode.SUCCESS.getCode() != response.getResultCode()) {

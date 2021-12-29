@@ -101,7 +101,7 @@ public class NacosNamingService implements NamingService {
         NotifyCenter.registerToPublisher(InstancesChangeEvent.class, 16384);
         // 注册一个订阅者
         NotifyCenter.registerSubscriber(changeNotifier);
-        // 初始化故障转移器（处理故障的），todo 初始化故障转移器（处理故障的）
+        // 服务持有者，里面存放了从注册中心拉去的instance
         this.serviceInfoHolder = new ServiceInfoHolder(namespace, properties);
         // 代理，一些网络操作封装
         this.clientProxy = new NamingClientProxyDelegate(this.namespace, serviceInfoHolder, properties, changeNotifier);

@@ -89,6 +89,7 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         labels.put(RemoteConstants.LABEL_MODULE, RemoteConstants.LABEL_MODULE_NAMING);
         this.rpcClient = RpcClientFactory.createClient(uuid, ConnectionType.GRPC, labels);
         this.namingGrpcConnectionEventListener = new NamingGrpcConnectionEventListener(this);
+        // rpc client的启动
         start(serverListFactory, serviceInfoHolder);
     }
 

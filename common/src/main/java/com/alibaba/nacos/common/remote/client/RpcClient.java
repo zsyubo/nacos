@@ -372,14 +372,17 @@ public abstract class RpcClient implements Closeable {
                             //clear recommend server if server is not in server list.
                             boolean serverExist = false;
                             for (String server : getServerListFactory().getServerList()) {
-
+                                // 更新server信息
                                 ServerInfo serverInfo = resolveServerInfo(server);
+                                // 判断当前链接的sever是否在更新后的server列表中
                                 if (serverInfo.getServerIp().equals(reconnectContext.serverInfo.getServerIp())) {
                                     serverExist = true;
+                                    // 更新端口
                                     reconnectContext.serverInfo.serverPort = serverInfo.serverPort;
                                     break;
                                 }
                             }
+                            // 如果已连接的服务不在最新的服务列表中，那么从现在的服务列表中选一个重新连接
                             if (!serverExist) {
                                 LoggerUtils.printIfInfoEnabled(LOGGER,
                                         "[{}] Recommend server is not in server list ,ignore recommend server {}", name,
@@ -400,7 +403,7 @@ public abstract class RpcClient implements Closeable {
         //connect to server ,try to connect to server sync once, async starting if fail.
         Connection connectToServer = null;
         rpcClientStatus.set(RpcClientStatus.STARTING);
-        
+        // 重试次数，默认3
         int startUpRetryTimes = RETRY_TIMES;
         while (startUpRetryTimes > 0 && connectToServer == null) {
             try {
@@ -409,7 +412,7 @@ public abstract class RpcClient implements Closeable {
                 
                 LoggerUtils.printIfInfoEnabled(LOGGER, "[{}] Try to connect to server on start up, server: {}", name,
                         serverInfo);
-                
+                // todo 链接nacos server
                 connectToServer = connectToServer(serverInfo);
             } catch (Throwable e) {
                 LoggerUtils.printIfWarnEnabled(LOGGER,

@@ -80,6 +80,7 @@ public class ServiceInfoHolder implements Closeable {
         } else {
             this.serviceInfoMap = new ConcurrentHashMap<String, ServiceInfo>(16);
         }
+        // 初始化故障转移器（处理故障的），todo 初始化故障转移器（处理故障的）
         this.failoverReactor = new FailoverReactor(this, cacheDir);
         this.pushEmptyProtection = isPushEmptyProtect(properties);
     }

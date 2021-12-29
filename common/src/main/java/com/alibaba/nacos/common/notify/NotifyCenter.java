@@ -51,13 +51,15 @@ public class NotifyCenter {
     public static int shareBufferSize;
     
     private static final AtomicBoolean CLOSED = new AtomicBoolean(false);
-    
+
+    // 匿名内部类(DefaultPublisher)
     private static final EventPublisherFactory DEFAULT_PUBLISHER_FACTORY;
     
     private static final NotifyCenter INSTANCE = new NotifyCenter();
     
     private DefaultSharePublisher sharePublisher;
-    
+
+    // 如果没有自定义，那么就是DefaultPublisher
     private static Class<? extends EventPublisher> clazz;
     
     /**
@@ -74,7 +76,8 @@ public class NotifyCenter {
         // The size of the public publisher's message staging queue buffer
         String shareBufferSizeProperty = "nacos.core.notify.share-buffer-size";
         shareBufferSize = Integer.getInteger(shareBufferSizeProperty, 1024);
-        
+
+        // 这地方是提供给第三方去实现的，在默认情况下，这地方是空的
         final Collection<EventPublisher> publishers = NacosServiceLoader.load(EventPublisher.class);
         Iterator<EventPublisher> iterator = publishers.iterator();
         
@@ -159,6 +162,8 @@ public class NotifyCenter {
      *
      * @param consumer subscriber
      */
+    //NamingGrpcClientProxy#start()
+    //    consumer: NamingGrpcClientProxy
     public static void registerSubscriber(final Subscriber consumer) {
         registerSubscriber(consumer, DEFAULT_PUBLISHER_FACTORY);
     }

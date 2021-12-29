@@ -102,11 +102,14 @@ public abstract class RpcClient implements Closeable {
     /**
      * listener called where connection's status changed.
      */
+    //ArrayList(NamingGrpcConnectionEventListener)
     protected List<ConnectionEventListener> connectionEventListeners = new ArrayList<ConnectionEventListener>();
     
     /**
+     * 处理来自 server的请求
      * handlers to process server push request.
      */
+    //new ArrayList(ConnectResetRequestHandler(), CustomRegisterServerRequestHandler(匿名内部类), NamingPushRequestHandler(serviceInfoHolder));
     protected List<ServerRequestHandler> serverRequestHandlers = new ArrayList<ServerRequestHandler>();
     
     static {
@@ -427,26 +430,46 @@ public abstract class RpcClient implements Closeable {
                     name, connectToServer.serverInfo.getAddress(), connectToServer.getConnectionId());
             this.currentConnection = connectToServer;
             rpcClientStatus.set(RpcClientStatus.RUNNING);
+            // 发布链接通知
             eventLinkedBlockingQueue.offer(new ConnectionEvent(ConnectionEvent.CONNECTED));
         } else {
+            //底层是reconnectionSignal.offer(new ReconnectContext
             switchServerAsync();
         }
-        
+
+        // 把ConnectResetRequestHandler添加到serverRequestHandlers中
         registerServerRequestHandler(new ConnectResetRequestHandler());
         
         //register client detection request.
-        registerServerRequestHandler(new ServerRequestHandler() {
-            @Override
-            public Response requestReply(Request request) {
-                if (request instanceof ClientDetectionRequest) {
-                    return new ClientDetectionResponse();
-                }
-                
-                return null;
-            }
-        });
+        registerServerRequestHandler(new CustomRegisterServerRequestHandler());
+//        registerServerRequestHandler(new ServerRequestHandler() {
+//            @Override
+//            public Response requestReply(Request request) {
+//                if (request instanceof ClientDetectionRequest) {
+//                    return new ClientDetectionResponse();
+//                }
+//
+//                return null;
+//            }
+//        });
         
     }
+
+    /**
+     * 自己去抽离出来的
+     */
+    class CustomRegisterServerRequestHandler implements ServerRequestHandler{
+        @Override
+        public Response requestReply(Request request) {
+            if (request instanceof ClientDetectionRequest) {
+                return new ClientDetectionResponse();
+            }
+
+            return null;
+        }
+    }
+
+
     
     class ConnectResetRequestHandler implements ServerRequestHandler {
         
@@ -838,6 +861,7 @@ public abstract class RpcClient implements Closeable {
      * @return return connection when successfully connect to server, or null if failed.
      * @throws Exception exception when fail to connect to server.
      */
+    //RpcClient.start()
     public abstract Connection connectToServer(ServerInfo serverInfo) throws Exception;
     
     /**
@@ -882,6 +906,8 @@ public abstract class RpcClient implements Closeable {
     }
     
     /**
+     * 注册serverRequestHandler，处理程序将处理来自服务器端的请求。
+     *
      * Register serverRequestHandler, the handler will handle the request from server side.
      *
      * @param serverRequestHandler serverRequestHandler

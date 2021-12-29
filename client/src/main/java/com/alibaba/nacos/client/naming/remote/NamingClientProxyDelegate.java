@@ -80,7 +80,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
         // 支持http方式
         this.httpClientProxy = new NamingHttpClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
-        // 支持GRPC方式
+        // 支持GRPC方式，这里面初始化了server的链接
         this.grpcClientProxy = new NamingGrpcClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
     }

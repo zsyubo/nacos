@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.common.spi;
 
+import com.alibaba.nacos.common.notify.NotifyCenter;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -24,6 +26,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Nacos SPI
  * Nacos SPI Service Loader.
  *
  * @author xiweng.yy
@@ -41,6 +44,7 @@ public class NacosServiceLoader {
      * @param <T> type of service
      * @return service instances
      */
+    //NotifyCenter中静态块
     public static <T> Collection<T> load(final Class<T> service) {
         if (SERVICES.containsKey(service)) {
             return newServiceInstances(service);

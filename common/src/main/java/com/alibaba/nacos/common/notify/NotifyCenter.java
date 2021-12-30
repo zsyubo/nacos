@@ -37,6 +37,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.alibaba.nacos.api.exception.NacosException.SERVER_ERROR;
 
 /**
+ * 时间通知的：分为普通事件和慢事件
+ *
+ * 单例模式
+ *
  * Unified Event Notify Center.
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -52,13 +56,15 @@ public class NotifyCenter {
     
     private static final AtomicBoolean CLOSED = new AtomicBoolean(false);
 
-    // 匿名内部类(DefaultPublisher)
+    // 匿名内部类(DefaultPublisher), 在static静态块汇总
     private static final EventPublisherFactory DEFAULT_PUBLISHER_FACTORY;
     
     private static final NotifyCenter INSTANCE = new NotifyCenter();
-    
+
+    // 发布慢事件
     private DefaultSharePublisher sharePublisher;
 
+    // 普通时间处理
     // 如果没有自定义，那么就是DefaultPublisher
     private static Class<? extends EventPublisher> clazz;
     
@@ -89,6 +95,8 @@ public class NotifyCenter {
         
         DEFAULT_PUBLISHER_FACTORY = (cls, buffer) -> {
             try {
+                //cls: com.alibaba.nacos.client.naming.event.InstancesChangeEvent
+                //buffer: 16384
                 EventPublisher publisher = clazz.newInstance();
                 publisher.init(cls, buffer);
                 return publisher;
@@ -162,6 +170,8 @@ public class NotifyCenter {
      *
      * @param consumer subscriber
      */
+    //NacosNamingService.init
+    //    consumer: InstancesChangeNotifier
     //NamingGrpcClientProxy#start()
     //    consumer: NamingGrpcClientProxy
     public static void registerSubscriber(final Subscriber consumer) {
@@ -175,9 +185,13 @@ public class NotifyCenter {
      * @param consumer subscriber
      * @param factory  publisher factory.
      */
+    //NotifyCenter.registerSubscriber(com.alibaba.nacos.common.notify.listener.Subscriber)
+    //    consumer: InstancesChangeNotifier、NamingGrpcClientProxy
+    //    factory:NotifyCenter.DEFAULT_PUBLISHER_FACTORY
     public static void registerSubscriber(final Subscriber consumer, final EventPublisherFactory factory) {
         // If you want to listen to multiple events, you do it separately,
         // based on subclass's subscribeTypes method return list, it can register to publisher.
+        //如果你想监听多个事件，你就分开做，基于子类的subscribeTypes方法的返回列表，它可以注册到发布者。
         if (consumer instanceof SmartSubscriber) {
             for (Class<? extends Event> subscribeType : ((SmartSubscriber) consumer).subscribeTypes()) {
                 // For case, producer: defaultSharePublisher -> consumer: smartSubscriber.
@@ -192,6 +206,7 @@ public class NotifyCenter {
         }
         
         final Class<? extends Event> subscribeType = consumer.subscribeType();
+        // 如果是慢事件，特殊处理，注册到INSTANCE.sharePublisher中
         if (ClassUtils.isAssignableFrom(SlowEvent.class, subscribeType)) {
             INSTANCE.sharePublisher.addSubscriber(consumer, subscribeType);
             return;
@@ -326,7 +341,12 @@ public class NotifyCenter {
      * @param eventType    class Instances type of the event type.
      * @param queueMaxSize the publisher's queue max size.
      */
+    //NacosNamingService#init
+    //    eventType:InstancesChangeEvent
+    //    queueMaxSize:16384
     public static EventPublisher registerToPublisher(final Class<? extends Event> eventType, final int queueMaxSize) {
+        //    eventType:InstancesChangeEvent
+        //    queueMaxSize:16384
         return registerToPublisher(eventType, DEFAULT_PUBLISHER_FACTORY, queueMaxSize);
     }
     
@@ -337,15 +357,22 @@ public class NotifyCenter {
      * @param factory      publisher factory.
      * @param queueMaxSize the publisher's queue max size.
      */
+    //NotifyCenter.registerToPublisher()
+    //    eventType: InstancesChangeEvent
+    //    factory: NotifyCenter.DEFAULT_PUBLISHER_FACTORY
+    //    queueMaxSize:16384
     public static EventPublisher registerToPublisher(final Class<? extends Event> eventType,
             final EventPublisherFactory factory, final int queueMaxSize) {
+        // 判断event是不是慢事件
         if (ClassUtils.isAssignableFrom(SlowEvent.class, eventType)) {
             return INSTANCE.sharePublisher;
         }
-        
+        //获取完整的ClassName: com.alibaba.nacos.client.naming.event.InstancesChangeEvent
         final String topic = ClassUtils.getCanonicalName(eventType);
         synchronized (NotifyCenter.class) {
             // MapUtils.computeIfAbsent is a unsafe method.
+            // Map<K, V> target, key, mappingFunction, C param1,  T param2
+            // target是一个Map, 通过Key获取对应value，如果没有，那么就把 param1和param2 拿去调用factory#apply方法获得一个value，设置到map。
             MapUtil.computeIfAbsent(INSTANCE.publisherMap, topic, factory, eventType, queueMaxSize);
         }
         return INSTANCE.publisherMap.get(topic);

@@ -26,12 +26,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * 慢事件的默认共享事件发布器实现。
+ *
  * The default share event publisher implementation for slow event.
  *
  * @author zongtanghu
  */
 public class DefaultSharePublisher extends DefaultPublisher implements ShardedEventPublisher {
-    
+
+    //<ServerListChangedEvent:[NamingGrpcClientProxy]>
     private final Map<Class<? extends SlowEvent>, Set<Subscriber>> subMappings = new ConcurrentHashMap<>();
     
     private final Lock lock = new ReentrantLock();

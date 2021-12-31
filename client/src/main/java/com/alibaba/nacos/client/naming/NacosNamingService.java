@@ -76,7 +76,7 @@ public class NacosNamingService implements NamingService {
         properties.setProperty(PropertyKeyConst.SERVER_ADDR, serverList);
         init(properties);
     }
-    
+    // properties: NacosProperties
     public NacosNamingService(Properties properties) throws NacosException {
         init(properties);
     }

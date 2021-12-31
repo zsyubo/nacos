@@ -54,7 +54,8 @@ public class PropertyKeyConst {
     public static final String CONFIG_LONG_POLL_TIMEOUT = "configLongPollTimeout";
     
     public static final String CONFIG_RETRY_TIME = "configRetryTime";
-    
+
+    // 最大重试次数
     public static final String MAX_RETRY = "maxRetry";
     
     public static final String ENABLE_REMOTE_SYNC_CONFIG = "enableRemoteSyncConfig";

@@ -69,6 +69,9 @@ public class GrpcConnection extends Connection {
     
     @Override
     public Response request(Request request, long timeouts) throws NacosException {
+        // grpc 负载？
+        // 什么是Payload https://blog.csdn.net/londa/article/details/90739309
+        // 通俗一点讲，在程序的世界里，payload(有效载荷)就是对于接收者有用的数据
         Payload grpcRequest = GrpcUtils.convert(request);
         ListenableFuture<Payload> requestFuture = grpcFutureServiceStub.request(grpcRequest);
         Payload grpcResponse;

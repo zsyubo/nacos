@@ -62,16 +62,19 @@ import static com.alibaba.nacos.api.exception.NacosException.SERVER_ERROR;
 public abstract class RpcClient implements Closeable {
     
     private static final Logger LOGGER = LoggerFactory.getLogger("com.alibaba.nacos.common.remote.client");
-    
+
+    //  new ServerListManager
     private ServerListFactory serverListFactory;
-    
+
+    //com.alibaba.nacos.common.remote.client.RpcClient.start里面去从queue中take并处理
     protected LinkedBlockingQueue<ConnectionEvent> eventLinkedBlockingQueue = new LinkedBlockingQueue<ConnectionEvent>();
     
     protected volatile AtomicReference<RpcClientStatus> rpcClientStatus = new AtomicReference<RpcClientStatus>(
             RpcClientStatus.WAIT_INIT);
     
     protected ScheduledExecutorService clientEventExecutor;
-    
+
+    // 信号？
     private final BlockingQueue<ReconnectContext> reconnectionSignal = new ArrayBlockingQueue<ReconnectContext>(1);
     
     protected volatile Connection currentConnection;
@@ -83,7 +86,8 @@ public abstract class RpcClient implements Closeable {
     private String tenant;
     
     private static final int RETRY_TIMES = 3;
-    
+
+    // 3s?
     private static final long DEFAULT_TIMEOUT_MILLS = 3000L;
     
     protected ClientAbilities clientAbilities;
@@ -98,11 +102,14 @@ public abstract class RpcClient implements Closeable {
     /**
      * listener called where connection's status changed.
      */
+    //ArrayList(NamingGrpcConnectionEventListener)
     protected List<ConnectionEventListener> connectionEventListeners = new ArrayList<ConnectionEventListener>();
     
     /**
+     * 处理来自 server的请求
      * handlers to process server push request.
      */
+    //new ArrayList(ConnectResetRequestHandler(), CustomRegisterServerRequestHandler(匿名内部类), NamingPushRequestHandler(serviceInfoHolder));
     protected List<ServerRequestHandler> serverRequestHandlers = new ArrayList<ServerRequestHandler>();
     
     static {
@@ -139,15 +146,21 @@ public abstract class RpcClient implements Closeable {
     }
     
     /**
+     *
+     * 启动服务器列表工厂。只能启动一次。
      * init server list factory.only can init once.
      *
      * @param serverListFactory serverListFactory
      */
+    //NamingGrpcClientProxy#start()
+    //    serverListFactory: new ServerListManager
     public RpcClient serverListFactory(ServerListFactory serverListFactory) {
+        // 判断状态(rpcClientStatus)是否在启动中
         if (!isWaitInitiated()) {
             return this;
         }
         this.serverListFactory = serverListFactory;
+        // rpcClientStatus---> 状态替换
         rpcClientStatus.compareAndSet(RpcClientStatus.WAIT_INIT, RpcClientStatus.INITIALIZED);
         
         LoggerUtils.printIfInfoEnabled(LOGGER, "[{}]RpcClient init, ServerListFactory ={}", name,
@@ -198,6 +211,7 @@ public abstract class RpcClient implements Closeable {
     }
     
     /**
+     * 通知客户端一个新连接
      * Notify when client new connected.
      */
     protected void notifyConnected() {
@@ -268,8 +282,9 @@ public abstract class RpcClient implements Closeable {
     /**
      * Start this client.
      */
+    //NamingGrpcClientProxy#start()
     public final void start() throws NacosException {
-        
+        // 替换状态为启动 INITIALIZED->STARTING
         boolean success = rpcClientStatus.compareAndSet(RpcClientStatus.INITIALIZED, RpcClientStatus.STARTING);
         if (!success) {
             return;
@@ -284,7 +299,8 @@ public abstract class RpcClient implements Closeable {
                 return t;
             }
         });
-        
+
+        // 处理event事件
         // connection event consumer.
         clientEventExecutor.submit(new Runnable() {
             @Override
@@ -293,6 +309,7 @@ public abstract class RpcClient implements Closeable {
                     ConnectionEvent take = null;
                     try {
                         take = eventLinkedBlockingQueue.take();
+                        // 连接
                         if (take.isConnected()) {
                             notifyConnected();
                         } else if (take.isDisConnected()) {
@@ -304,7 +321,8 @@ public abstract class RpcClient implements Closeable {
                 }
             }
         });
-        
+
+        // 检查rpc通信
         clientEventExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -318,6 +336,7 @@ public abstract class RpcClient implements Closeable {
                         if (reconnectContext == null) {
                             //check alive time.
                             if (System.currentTimeMillis() - lastActiveTimeStamp >= keepAliveTime) {
+                                // 连接检查是否正常
                                 boolean isHealthy = healthCheck();
                                 if (!isHealthy) {
                                     if (currentConnection == null) {
@@ -328,6 +347,7 @@ public abstract class RpcClient implements Closeable {
                                             currentConnection.getConnectionId());
                                     
                                     RpcClientStatus rpcClientStatus = RpcClient.this.rpcClientStatus.get();
+                                    // 如果rpc状态为下线，这退出
                                     if (RpcClientStatus.SHUTDOWN.equals(rpcClientStatus)) {
                                         break;
                                     }
@@ -354,13 +374,17 @@ public abstract class RpcClient implements Closeable {
                             //clear recommend server if server is not in server list.
                             boolean serverExist = false;
                             for (String server : getServerListFactory().getServerList()) {
+                                // 更新server信息
                                 ServerInfo serverInfo = resolveServerInfo(server);
+                                // 判断当前链接的sever是否在更新后的server列表中
                                 if (serverInfo.getServerIp().equals(reconnectContext.serverInfo.getServerIp())) {
                                     serverExist = true;
+                                    // 更新端口
                                     reconnectContext.serverInfo.serverPort = serverInfo.serverPort;
                                     break;
                                 }
                             }
+                            // 如果已连接的服务不在最新的服务列表中，那么从现在的服务列表中选一个重新连接
                             if (!serverExist) {
                                 LoggerUtils.printIfInfoEnabled(LOGGER,
                                         "[{}] Recommend server is not in server list ,ignore recommend server {}", name,
@@ -381,7 +405,7 @@ public abstract class RpcClient implements Closeable {
         //connect to server ,try to connect to server sync once, async starting if fail.
         Connection connectToServer = null;
         rpcClientStatus.set(RpcClientStatus.STARTING);
-        
+        // 重试次数，默认3
         int startUpRetryTimes = RETRY_TIMES;
         while (startUpRetryTimes > 0 && connectToServer == null) {
             try {
@@ -390,7 +414,7 @@ public abstract class RpcClient implements Closeable {
                 
                 LoggerUtils.printIfInfoEnabled(LOGGER, "[{}] Try to connect to server on start up, server: {}", name,
                         serverInfo);
-                
+                // todo 链接nacos server
                 connectToServer = connectToServer(serverInfo);
             } catch (Throwable e) {
                 LoggerUtils.printIfWarnEnabled(LOGGER,
@@ -405,27 +429,47 @@ public abstract class RpcClient implements Closeable {
                     name, connectToServer.serverInfo.getAddress(), connectToServer.getConnectionId());
             this.currentConnection = connectToServer;
             rpcClientStatus.set(RpcClientStatus.RUNNING);
+            // 发布链接通知
             eventLinkedBlockingQueue.offer(new ConnectionEvent(ConnectionEvent.CONNECTED));
         } else {
+            //底层是reconnectionSignal.offer(new ReconnectContext
             switchServerAsync();
         }
-        
+
+        // 把ConnectResetRequestHandler添加到serverRequestHandlers中
         registerServerRequestHandler(new ConnectResetRequestHandler());
         
         //register client detection request.
-        registerServerRequestHandler(new ServerRequestHandler() {
-            @Override
-            public Response requestReply(Request request) {
-                if (request instanceof ClientDetectionRequest) {
-                    return new ClientDetectionResponse();
-                }
-                
-                return null;
-            }
-        });
+        registerServerRequestHandler(new CustomRegisterServerRequestHandler());
+//        registerServerRequestHandler(new ServerRequestHandler() {
+//            @Override
+//            public Response requestReply(Request request) {
+//                if (request instanceof ClientDetectionRequest) {
+//                    return new ClientDetectionResponse();
+//                }
+//
+//                return null;
+//            }
+//        });
         
     }
-    
+
+
+    /**
+     * 自己去抽离出来的
+     */
+    class CustomRegisterServerRequestHandler implements ServerRequestHandler{
+        @Override
+        public Response requestReply(Request request) {
+            if (request instanceof ClientDetectionRequest) {
+                return new ClientDetectionResponse();
+            }
+
+            return null;
+        }
+    }
+
+
     class ConnectResetRequestHandler implements ServerRequestHandler {
         
         @Override
@@ -641,11 +685,13 @@ public abstract class RpcClient implements Closeable {
      * @param request request.
      * @return response from server.
      */
+    // timeoutMills: 默认3s
     public Response request(Request request, long timeoutMills) throws NacosException {
         int retryTimes = 0;
         Response response = null;
         Exception exceptionThrow = null;
         long start = System.currentTimeMillis();
+        // 重试
         while (retryTimes < RETRY_TIMES && System.currentTimeMillis() < timeoutMills + start) {
             boolean waitReconnect = false;
             try {
@@ -654,6 +700,7 @@ public abstract class RpcClient implements Closeable {
                     throw new NacosException(NacosException.CLIENT_DISCONNECT,
                             "Client not connected,current status:" + rpcClientStatus.get());
                 }
+                // com.alibaba.nacos.common.remote.client.grpc.GrpcConnection#request
                 response = this.currentConnection.request(request, timeoutMills);
                 if (response == null) {
                     throw new NacosException(SERVER_ERROR, "Unknown Exception.");
@@ -813,6 +860,7 @@ public abstract class RpcClient implements Closeable {
      * @return return connection when successfully connect to server, or null if failed.
      * @throws Exception exception when fail to connect to server.
      */
+    //RpcClient.start()
     public abstract Connection connectToServer(ServerInfo serverInfo) throws Exception;
     
     /**
@@ -857,6 +905,8 @@ public abstract class RpcClient implements Closeable {
     }
     
     /**
+     * 注册serverRequestHandler，处理程序将处理来自服务器端的请求。
+     *
      * Register serverRequestHandler, the handler will handle the request from server side.
      *
      * @param serverRequestHandler serverRequestHandler
@@ -916,6 +966,7 @@ public abstract class RpcClient implements Closeable {
         String property = System.getProperty("nacos.server.port", "8848");
         int serverPort = Integer.parseInt(property);
         ServerInfo serverInfo = null;
+        // server url是否是http协议
         if (serverAddress.contains(Constants.HTTP_PREFIX)) {
             String[] split = serverAddress.split(Constants.COLON);
             String serverIp = split[1].replaceAll("//", "");

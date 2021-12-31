@@ -74,7 +74,11 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     private final RpcClient rpcClient;
     
     private final NamingGrpcRedoService redoService;
-    
+
+    //NamingClientProxyDelegate#NamingClientProxyDelegate
+    //    serverListFactory: new ServerListManager
+    //    properties: NacosProperties
+    //    serviceInfoHolder: ServiceInfoHolder
     public NamingGrpcClientProxy(String namespaceId, SecurityProxy securityProxy, ServerListFactory serverListFactory,
             Properties properties, ServiceInfoHolder serviceInfoHolder) throws NacosException {
         super(securityProxy, properties);
@@ -86,13 +90,19 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         labels.put(RemoteConstants.LABEL_MODULE, RemoteConstants.LABEL_MODULE_NAMING);
         this.rpcClient = RpcClientFactory.createClient(uuid, ConnectionType.GRPC, labels);
         this.redoService = new NamingGrpcRedoService(this);
+        // rpc client的启动
         start(serverListFactory, serviceInfoHolder);
     }
-    
+    //NamingGrpcClientProxy#NamingGrpcClientProxy
+    //    serverListFactory: new ServerListManager
+    //    serviceInfoHolder: ServiceInfoHolder
     private void start(ServerListFactory serverListFactory, ServiceInfoHolder serviceInfoHolder) throws NacosException {
+        // 设置服务list工厂，同时设置启动状态
+        // WAIT_INIT->INITIALIZED
         rpcClient.serverListFactory(serverListFactory);
         rpcClient.registerConnectionListener(redoService);
         rpcClient.registerServerRequestHandler(new NamingPushRequestHandler(serviceInfoHolder));
+        // INITIALIZED->STARTING
         rpcClient.start();
         NotifyCenter.registerSubscriber(this);
     }
@@ -262,9 +272,12 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     private <T extends Response> T requestToServer(AbstractNamingRequest request, Class<T> responseClass)
             throws NacosException {
         try {
+            // 安全信息head，也就是登陆的
             request.putAllHeader(getSecurityHeaders());
+            // 业务操作的head
             request.putAllHeader(getSpasHeaders(
                     NamingUtils.getGroupedNameOptional(request.getServiceName(), request.getGroupName())));
+            // 去请求
             Response response =
                     requestTimeout < 0 ? rpcClient.request(request) : rpcClient.request(request, requestTimeout);
             if (ResponseCode.SUCCESS.getCode() != response.getResultCode()) {

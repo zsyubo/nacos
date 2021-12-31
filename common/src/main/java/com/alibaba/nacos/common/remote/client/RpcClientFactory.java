@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * RpcClientFactory。支持多客户端不同模块的使用。
+ *
  * RpcClientFactory.to support multi client for different modules of usage.
  *
  * @author liuzunfei

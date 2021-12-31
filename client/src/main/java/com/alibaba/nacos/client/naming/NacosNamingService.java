@@ -76,22 +76,34 @@ public class NacosNamingService implements NamingService {
         properties.setProperty(PropertyKeyConst.SERVER_ADDR, serverList);
         init(properties);
     }
+
     // properties: NacosProperties
     public NacosNamingService(Properties properties) throws NacosException {
         init(properties);
     }
-    
+
+    //NacosNamingService#NacosNamingService(java.util.Properties)
+    //    properties: NacosProperties
     private void init(Properties properties) throws NacosException {
+        // 检查配置文件是否有错误
         ValidatorUtils.checkInitParam(properties);
+        // 初始化NameSpace
         this.namespace = InitUtils.initNamespaceForNaming(properties);
+        // 序列化相关的
         InitUtils.initSerialization();
+        //初始化 web root context，也就是访问路径吧
         InitUtils.initWebRootContext(properties);
+        // 初始化Log
         initLogName(properties);
-        
+        // 观察者模式
         this.changeNotifier = new InstancesChangeNotifier();
+        // 注册一个发布者？
         NotifyCenter.registerToPublisher(InstancesChangeEvent.class, 16384);
+        // 注册一个订阅者
         NotifyCenter.registerSubscriber(changeNotifier);
+        // 服务持有者，里面存放了从注册中心拉去的instance
         this.serviceInfoHolder = new ServiceInfoHolder(namespace, properties);
+        // 代理，一些网络操作封装
         this.clientProxy = new NamingClientProxyDelegate(this.namespace, serviceInfoHolder, properties, changeNotifier);
     }
     
@@ -242,7 +254,8 @@ public class NacosNamingService implements NamingService {
     public List<Instance> selectInstances(String serviceName, boolean healthy) throws NacosException {
         return selectInstances(serviceName, new ArrayList<String>(), healthy);
     }
-    
+
+    // namingService().selectInstances(serviceId, group, true);
     @Override
     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
         return selectInstances(serviceName, groupName, healthy, true);
@@ -257,6 +270,11 @@ public class NacosNamingService implements NamingService {
     @Override
     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy, boolean subscribe)
             throws NacosException {
+        //serviceName
+        //groupName
+        //new ArrayList<String>()
+        //healthy: true
+        //subscribe: true
         return selectInstances(serviceName, groupName, new ArrayList<String>(), healthy, subscribe);
     }
     
@@ -277,13 +295,20 @@ public class NacosNamingService implements NamingService {
             throws NacosException {
         return selectInstances(serviceName, Constants.DEFAULT_GROUP, clusters, healthy, subscribe);
     }
-    
+
+    //serviceName
+    //groupName
+    //clusters:new ArrayList<String>()
+    //healthy: true
+    //subscribe: true
     @Override
     public List<Instance> selectInstances(String serviceName, String groupName, List<String> clusters, boolean healthy,
             boolean subscribe) throws NacosException {
-        
+        // clusters 限定的集群列表
+
         ServiceInfo serviceInfo;
         String clusterString = StringUtils.join(clusters, ",");
+        // 是否订阅？
         if (subscribe) {
             serviceInfo = serviceInfoHolder.getServiceInfo(serviceName, groupName, clusterString);
             if (null == serviceInfo) {

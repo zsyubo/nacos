@@ -45,9 +45,12 @@ public class DefaultPublisher extends Thread implements EventPublisher {
     private volatile boolean initialized = false;
     
     private volatile boolean shutdown = false;
-    
+
+    //com.alibaba.nacos.client.naming.event.InstancesChangeEvent
     private Class<? extends Event> eventType;
-    
+
+    // 订阅者
+    //InstancesChangeNotifier
     protected final ConcurrentHashSet<Subscriber> subscribers = new ConcurrentHashSet<>();
     
     private int queueMaxSize = -1;
@@ -58,7 +61,10 @@ public class DefaultPublisher extends Thread implements EventPublisher {
     
     private static final AtomicReferenceFieldUpdater<DefaultPublisher, Long> UPDATER = AtomicReferenceFieldUpdater
             .newUpdater(DefaultPublisher.class, Long.class, "lastEventSequence");
-    
+
+    //NotifyCenter.DEFAULT_PUBLISHER_FACTORY
+    //    cls: com.alibaba.nacos.client.naming.event.InstancesChangeEvent
+    //    buffer: 16384
     @Override
     public void init(Class<? extends Event> type, int bufferSize) {
         setDaemon(true);
@@ -102,6 +108,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
             int waitTimes = 60;
             // To ensure that messages are not lost, enable EventHandler when
             // waiting for the first Subscriber to register
+            // 等待60秒
             for (; ; ) {
                 if (shutdown || hasSubscriber() || waitTimes <= 0) {
                     break;

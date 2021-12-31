@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 通知eventListener回调的订阅器。观察者模式
+ *
  * A subscriber to notify eventListener callback.
  *
  * @author horizonzy

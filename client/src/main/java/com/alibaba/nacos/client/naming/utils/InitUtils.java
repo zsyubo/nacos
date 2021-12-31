@@ -52,7 +52,7 @@ public class InitUtils {
      */
     public static String initNamespaceForNaming(Properties properties) {
         String tmpNamespace = null;
-        
+        // 命名空间
         String isUseCloudNamespaceParsing = properties.getProperty(PropertyKeyConst.IS_USE_CLOUD_NAMESPACE_PARSING,
                 System.getProperty(SystemPropertyKeyConst.IS_USE_CLOUD_NAMESPACE_PARSING,
                         String.valueOf(Constants.DEFAULT_USE_CLOUD_NAMESPACE_PARSING)));
@@ -110,6 +110,7 @@ public class InitUtils {
                 UtilAndComs.nacosUrlInstance = UtilAndComs.nacosUrlBase + "/instance";
             }
         });
+        // namespace 的RootContext
         initWebRootContext();
     }
     

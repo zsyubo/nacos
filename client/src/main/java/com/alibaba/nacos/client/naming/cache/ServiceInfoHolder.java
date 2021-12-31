@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentMap;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 持有者，里面存储了服务实例的信息(注册中心)
  * Naming client service information holder.
  *
  * @author xiweng.yy
@@ -57,7 +58,8 @@ public class ServiceInfoHolder implements Closeable {
     private static final String FILE_PATH_NAMING = "naming";
     
     private static final String USER_HOME_PROPERTY = "user.home";
-    
+
+    //服务列表
     private final ConcurrentMap<String, ServiceInfo> serviceInfoMap;
     
     private final FailoverReactor failoverReactor;
@@ -65,14 +67,20 @@ public class ServiceInfoHolder implements Closeable {
     private final boolean pushEmptyProtection;
     
     private String cacheDir;
-    
+
+    //NacosNamingService#init
+    //    namespace: 命名空间
+    //    properties:NacosProperties
     public ServiceInfoHolder(String namespace, Properties properties) {
+        // 初始化缓存目录
         initCacheDir(namespace, properties);
+        // 判断是否从本地缓存文件中加载服务列表
         if (isLoadCacheAtStart(properties)) {
             this.serviceInfoMap = new ConcurrentHashMap<String, ServiceInfo>(DiskCache.read(this.cacheDir));
         } else {
             this.serviceInfoMap = new ConcurrentHashMap<String, ServiceInfo>(16);
         }
+        // 初始化故障转移器（处理故障的），todo 初始化故障转移器（处理故障的）
         this.failoverReactor = new FailoverReactor(this, cacheDir);
         this.pushEmptyProtection = isPushEmptyProtect(properties);
     }
@@ -120,6 +128,7 @@ public class ServiceInfoHolder implements Closeable {
     
     public ServiceInfo getServiceInfo(final String serviceName, final String groupName, final String clusters) {
         NAMING_LOGGER.debug("failover-mode: " + failoverReactor.isFailoverSwitch());
+        // 把serviceName和groupName组合起来
         String groupedServiceName = NamingUtils.getGroupedName(serviceName, groupName);
         String key = ServiceInfo.getKey(groupedServiceName, clusters);
         if (failoverReactor.isFailoverSwitch()) {

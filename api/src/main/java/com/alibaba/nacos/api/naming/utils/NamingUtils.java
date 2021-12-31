@@ -31,7 +31,6 @@ public class NamingUtils {
     
     /**
      * 返回一个包含serviceName和groupName的组合字符串。 serviceName不能为零。<p></p>
-     *
      * Returns a combined string with serviceName and groupName. serviceName can not be nil.
      *
      * <p>In most cases, serviceName can not be nil. In other cases, for search or anything, See {@link

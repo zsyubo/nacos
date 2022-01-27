@@ -99,7 +99,7 @@ public class NacosNamingService implements NamingService {
         this.changeNotifier = new InstancesChangeNotifier();
         // 注册一个发布者？
         NotifyCenter.registerToPublisher(InstancesChangeEvent.class, 16384);
-        // 注册一个订阅者
+        // 注册一个订阅者(消费者)
         NotifyCenter.registerSubscriber(changeNotifier);
         // 服务持有者，里面存放了从注册中心拉去的instance
         this.serviceInfoHolder = new ServiceInfoHolder(namespace, properties);
@@ -110,7 +110,7 @@ public class NacosNamingService implements NamingService {
     private void initLogName(Properties properties) {
         logName = System.getProperty(UtilAndComs.NACOS_NAMING_LOG_NAME);
         if (StringUtils.isEmpty(logName)) {
-            
+            // 从配置文件读取logname
             if (properties != null && StringUtils
                     .isNotEmpty(properties.getProperty(UtilAndComs.NACOS_NAMING_LOG_NAME))) {
                 logName = properties.getProperty(UtilAndComs.NACOS_NAMING_LOG_NAME);

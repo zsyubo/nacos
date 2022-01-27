@@ -186,7 +186,7 @@ public class NotifyCenter {
      * @param factory  publisher factory.
      */
     //NotifyCenter.registerSubscriber(com.alibaba.nacos.common.notify.listener.Subscriber)
-    //    consumer: InstancesChangeNotifier、NamingGrpcClientProxy
+    //    consumer: [InstancesChangeNotifier、NamingGrpcClientProxy]
     //    factory:NotifyCenter.DEFAULT_PUBLISHER_FACTORY
     public static void registerSubscriber(final Subscriber consumer, final EventPublisherFactory factory) {
         // If you want to listen to multiple events, you do it separately,

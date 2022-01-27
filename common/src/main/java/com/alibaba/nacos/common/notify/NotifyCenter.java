@@ -61,7 +61,7 @@ public class NotifyCenter {
     
     private static final NotifyCenter INSTANCE = new NotifyCenter();
 
-    // 发布慢事件
+    // 发布慢事件， 在static静态块中初始化
     private DefaultSharePublisher sharePublisher;
 
     // 普通时间处理

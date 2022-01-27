@@ -58,7 +58,7 @@ public class InitUtils {
                         String.valueOf(Constants.DEFAULT_USE_CLOUD_NAMESPACE_PARSING)));
         
         if (Boolean.parseBoolean(isUseCloudNamespaceParsing)) {
-            
+            // ans.namespace
             tmpNamespace = TenantUtil.getUserTenantForAns();
             LogUtils.NAMING_LOGGER.info("initializer namespace from System Property : {}", tmpNamespace);
             
@@ -80,7 +80,7 @@ public class InitUtils {
                 return namespace;
             }
         });
-        
+        // 从配置文件中获取
         if (StringUtils.isEmpty(tmpNamespace)) {
             tmpNamespace = properties.getProperty(PropertyKeyConst.NAMESPACE);
         }
@@ -101,6 +101,7 @@ public class InitUtils {
      * @since 1.4.1
      */
     public static void initWebRootContext(Properties properties) {
+        // 获取content path，也就是根路径
         final String webContext = properties.getProperty(PropertyKeyConst.CONTEXT_PATH);
         TemplateUtils.stringNotEmptyAndThenExecute(webContext, new Runnable() {
             @Override

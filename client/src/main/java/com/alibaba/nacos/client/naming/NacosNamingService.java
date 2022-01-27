@@ -108,6 +108,7 @@ public class NacosNamingService implements NamingService {
     }
     
     private void initLogName(Properties properties) {
+        //优先是系统参数，然后才是系统配置文件
         logName = System.getProperty(UtilAndComs.NACOS_NAMING_LOG_NAME);
         if (StringUtils.isEmpty(logName)) {
             // 从配置文件读取logname

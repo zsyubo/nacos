@@ -63,9 +63,11 @@ public class ServiceInfoHolder implements Closeable {
     private final ConcurrentMap<String, ServiceInfo> serviceInfoMap;
     
     private final FailoverReactor failoverReactor;
-    
+
+    // 推空保护？
     private final boolean pushEmptyProtection;
-    
+
+    //initCacheDir中初始化。。用户home目录(如:C:\Users\YuanShan)  + "/nacos"+"自定义名字，默认空"+"/naming"+namespace(默认为public)
     private String cacheDir;
 
     //NacosNamingService#init
@@ -74,8 +76,9 @@ public class ServiceInfoHolder implements Closeable {
     public ServiceInfoHolder(String namespace, Properties properties) {
         // 初始化缓存目录
         initCacheDir(namespace, properties);
-        // 判断是否从本地缓存文件中加载服务列表
+        // 判断是否从本地缓存文件中加载服务列表， 默认为false。。通过配置中的namingLoadCacheAtStart来控制
         if (isLoadCacheAtStart(properties)) {
+            //从本地文件中加载
             this.serviceInfoMap = new ConcurrentHashMap<String, ServiceInfo>(DiskCache.read(this.cacheDir));
         } else {
             this.serviceInfoMap = new ConcurrentHashMap<String, ServiceInfo>(16);
@@ -97,6 +100,7 @@ public class ServiceInfoHolder implements Closeable {
             cacheDir = jmSnapshotPath + File.separator + FILE_PATH_NACOS + namingCacheRegistryDir
                     + File.separator + FILE_PATH_NAMING + File.separator + namespace;
         } else {
+            // 用户home目录(如:C:\Users\YuanShan)  + "/nacos"+"自定义名字，默认空"+"/naming"+namespace(默认为public)
             cacheDir = System.getProperty(USER_HOME_PROPERTY) + File.separator + FILE_PATH_NACOS + namingCacheRegistryDir
                     + File.separator + FILE_PATH_NAMING + File.separator + namespace;
         }
@@ -131,6 +135,7 @@ public class ServiceInfoHolder implements Closeable {
         // 把serviceName和groupName组合起来
         String groupedServiceName = NamingUtils.getGroupedName(serviceName, groupName);
         String key = ServiceInfo.getKey(groupedServiceName, clusters);
+        //
         if (failoverReactor.isFailoverSwitch()) {
             return failoverReactor.getService(key);
         }

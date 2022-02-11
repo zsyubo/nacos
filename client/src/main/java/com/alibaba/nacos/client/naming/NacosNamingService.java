@@ -236,6 +236,7 @@ public class NacosNamingService implements NamingService {
             boolean subscribe) throws NacosException {
         ServiceInfo serviceInfo;
         String clusterString = StringUtils.join(clusters, ",");
+        // true   com.alibaba.cloud.nacos.discovery.NacosDiscoveryClient#getInstances
         if (subscribe) {
             serviceInfo = serviceInfoHolder.getServiceInfo(serviceName, groupName, clusterString);
             if (null == serviceInfo) {
@@ -309,7 +310,7 @@ public class NacosNamingService implements NamingService {
 
         ServiceInfo serviceInfo;
         String clusterString = StringUtils.join(clusters, ",");
-        // 是否订阅？
+        // 是否订阅, 默认为true
         if (subscribe) {
             serviceInfo = serviceInfoHolder.getServiceInfo(serviceName, groupName, clusterString);
             if (null == serviceInfo) {

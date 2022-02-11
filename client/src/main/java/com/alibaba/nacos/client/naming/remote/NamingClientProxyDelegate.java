@@ -50,9 +50,11 @@ import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 public class NamingClientProxyDelegate implements NamingClientProxy {
     
     private final long securityInfoRefreshIntervalMills = TimeUnit.SECONDS.toMillis(5);
-    
+
+    // 监听服务列表
     private final ServerListManager serverListManager;
-    
+
+    // 更新服务的
     private final ServiceInfoUpdateService serviceInfoUpdateService;
     
     private final ServiceInfoHolder serviceInfoHolder;
@@ -74,6 +76,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
                 changeNotifier);
         this.serverListManager = new ServerListManager(properties, namespace);
         this.serviceInfoHolder = serviceInfoHolder;
+        // 安全模块
         this.securityProxy = new SecurityProxy(properties, NamingHttpClientManager.getInstance().getNacosRestTemplate());
         // 初始化安全模块，底层是去登陆server
         initSecurityProxy();
@@ -81,6 +84,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
         this.httpClientProxy = new NamingHttpClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
         // 支持GRPC方式，这里面初始化了server的链接
+        // 封装了网络相关操作
         this.grpcClientProxy = new NamingGrpcClientProxy(namespace, securityProxy, serverListManager, properties,
                 serviceInfoHolder);
     }

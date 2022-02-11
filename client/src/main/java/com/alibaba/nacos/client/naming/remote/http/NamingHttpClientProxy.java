@@ -124,7 +124,9 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         this.serverListManager = serverListManager;
         this.setServerPort(DEFAULT_SERVER_PORT);
         this.namespaceId = namespaceId;
+        // 心跳的
         this.beatReactor = new BeatReactor(this, properties);
+        // 这里面齐了一个线程，todo
         this.pushReceiver = new PushReceiver(serviceInfoHolder);
         this.maxRetry = ConvertUtils.toInt(properties.getProperty(PropertyKeyConst.NAMING_REQUEST_DOMAIN_RETRY_COUNT,
                 String.valueOf(UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT)));

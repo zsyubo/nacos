@@ -50,7 +50,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
     private Class<? extends Event> eventType;
 
     // 订阅者
-    //InstancesChangeNotifier
+    //  NotifyCenter#addSubscriber---> InstancesChangeNotifier
     protected final ConcurrentHashSet<Subscriber> subscribers = new ConcurrentHashSet<>();
     
     private int queueMaxSize = -1;
@@ -204,7 +204,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
     public void notifySubscriber(final Subscriber subscriber, final Event event) {
         
         LOGGER.debug("[NotifyCenter] the {} will received by {}", event, subscriber);
-        
+        // InstancesChangeNotifier#onEvent
         final Runnable job = () -> subscriber.onEvent(event);
         final Executor executor = subscriber.executor();
         

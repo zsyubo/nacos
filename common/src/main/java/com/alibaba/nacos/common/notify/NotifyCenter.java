@@ -61,7 +61,8 @@ public class NotifyCenter {
     
     private static final NotifyCenter INSTANCE = new NotifyCenter();
 
-    // 发布慢事件， 在static静态块中初始化
+    // 发布慢事件， 在static静态块中初始化, 其实就是一个消费者：
+    //              com.alibaba.nacos.common.notify.DefaultPublisher.run---->DefaultPublisher#openEventHandler
     private DefaultSharePublisher sharePublisher;
 
     // 普通时间处理
@@ -71,6 +72,7 @@ public class NotifyCenter {
     /**
      * Publisher management container.
      */
+    //  key:InstancesChangeEvent  value:DefaultPublisher
     private final Map<String, EventPublisher> publisherMap = new ConcurrentHashMap<>(16);
     
     static {
@@ -95,6 +97,7 @@ public class NotifyCenter {
         
         DEFAULT_PUBLISHER_FACTORY = (cls, buffer) -> {
             try {
+                //clazz: DefaultPublisher
                 //cls: com.alibaba.nacos.client.naming.event.InstancesChangeEvent
                 //buffer: 16384
                 EventPublisher publisher = clazz.newInstance();
@@ -186,7 +189,9 @@ public class NotifyCenter {
      * @param factory  publisher factory.
      */
     //NotifyCenter.registerSubscriber(com.alibaba.nacos.common.notify.listener.Subscriber)
-    //    consumer: [InstancesChangeNotifier、NamingGrpcClientProxy]
+    //    consumer:
+    //          InstancesChangeNotifier
+    //          NamingGrpcClientProxy
     //    factory:NotifyCenter.DEFAULT_PUBLISHER_FACTORY
     public static void registerSubscriber(final Subscriber consumer, final EventPublisherFactory factory) {
         // If you want to listen to multiple events, you do it separately,
@@ -204,7 +209,7 @@ public class NotifyCenter {
             }
             return;
         }
-        
+        // InstancesChangeNotifier---->InstancesChangeEvent.class
         final Class<? extends Event> subscribeType = consumer.subscribeType();
         // 如果是慢事件，特殊处理，注册到INSTANCE.sharePublisher中
         if (ClassUtils.isAssignableFrom(SlowEvent.class, subscribeType)) {
@@ -214,20 +219,25 @@ public class NotifyCenter {
         
         addSubscriber(consumer, subscribeType, factory);
     }
-    
+
     /**
      * Add a subscriber to publisher.
      *
      * @param consumer      subscriber instance.
      * @param subscribeType subscribeType.
-     * @param factory       publisher factory.
+     * @param factory       publisher factory.  NotifyCenter.DEFAULT_PUBLISHER_FACTORY
      */
     private static void addSubscriber(final Subscriber consumer, Class<? extends Event> subscribeType,
             EventPublisherFactory factory) {
-        
+        //registerSubscriber(com.alibaba.nacos.common.notify.listener.Subscriber, com.alibaba.nacos.common.notify.EventPublisherFactory)
+        //  consumer:  InstancesChangeNotifier
+        //  subscribeType: InstancesChangeEvent.class
+        //  factory: NotifyCenter.DEFAULT_PUBLISHER_FACTORY
+
         final String topic = ClassUtils.getCanonicalName(subscribeType);
         synchronized (NotifyCenter.class) {
             // MapUtils.computeIfAbsent is a unsafe method.
+            // 一般到这里，INSTANCE.publisherMap中已存在InstancesChangeEvent，所以这个操作没用
             MapUtil.computeIfAbsent(INSTANCE.publisherMap, topic, factory, subscribeType, ringBufferSize);
         }
         EventPublisher publisher = INSTANCE.publisherMap.get(topic);

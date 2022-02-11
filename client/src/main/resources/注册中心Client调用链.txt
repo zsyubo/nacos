@@ -1,0 +1,21 @@
+com.alibaba.nacos.common.notify.DefaultPublisher#openEventHandler
+
+# spring cloud nacos
+NacosServiceDiscovery#getInstances
+	NacosServiceManager#buildNamingService
+		NacosServiceManager#createNewNamingService
+#nacos----------->
+		NamingFactory#createNamingService(java.util.Properties) --> NacosNamingService#NacosNamingService(java.util.Properties)
+			NacosNamingService#init
+				InitUtils#initNamespaceForNaming
+				NacosNamingService#initLogName  初始化日志
+				NotifyCenter#registerToPublisher(java.lang.Class<? extends com.alibaba.nacos.common.notify.Event>, int)  注册一个生产者
+                    DefaultPublisher.init  初始化DefaultPublisher
+                    ---> 开辟一个线程 DefaultPublisher#openEventHandler
+				NotifyCenter.registerSubscriber(Subscriber) 注册一个消费者
+				ServiceInfoHolder#ServiceInfoHolder
+				    ServiceInfoHolder.initCacheDir  初始化缓存目录
+				    FailoverReactor#FailoverReactor  数据持久化处理
+                NamingClientProxyDelegate.NamingClientProxyDelegate  初始化客户端代理
+                    NamingClientProxyDelegate.initSecurityProxy  通过用户名密码去链接nacos server
+                    NamingHttpClientProxy.NamingHttpClientProxy  初始化http客户端

@@ -165,12 +165,15 @@ public class ServiceInfoHolder implements Closeable {
         if (serviceKey == null) {
             return null;
         }
+        // 取出旧的
         ServiceInfo oldService = serviceInfoMap.get(serviceInfo.getKey());
+        // 判空
         if (isEmptyOrErrorPush(serviceInfo)) {
             //empty or error push, just ignore
             return oldService;
         }
         serviceInfoMap.put(serviceInfo.getKey(), serviceInfo);
+        // 判断是否改变
         boolean changed = isChangedServiceInfo(oldService, serviceInfo);
         if (StringUtils.isBlank(serviceInfo.getJsonFromServer())) {
             serviceInfo.setJsonFromServer(JacksonUtils.toJson(serviceInfo));
@@ -196,6 +199,7 @@ public class ServiceInfoHolder implements Closeable {
                     + JacksonUtils.toJson(newService.getHosts()));
             return true;
         }
+        // 判断改变时间
         if (oldService.getLastRefTime() > newService.getLastRefTime()) {
             NAMING_LOGGER
                     .warn("out of date data received, old-t: " + oldService.getLastRefTime() + ", new-t: " + newService

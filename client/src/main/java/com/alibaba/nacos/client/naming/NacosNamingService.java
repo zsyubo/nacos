@@ -68,7 +68,8 @@ public class NacosNamingService implements NamingService {
     private ServiceInfoHolder serviceInfoHolder;
     
     private InstancesChangeNotifier changeNotifier;
-    
+
+    // NamingClientProxyDelegate
     private NamingClientProxy clientProxy;
     
     public NacosNamingService(String serverList) throws NacosException {

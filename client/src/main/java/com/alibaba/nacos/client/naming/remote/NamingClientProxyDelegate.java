@@ -72,6 +72,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     //    serviceInfoHolder: ServiceInfoHolder
     public NamingClientProxyDelegate(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
             InstancesChangeNotifier changeNotifier) throws NacosException {
+        // 实例信息更新
         this.serviceInfoUpdateService = new ServiceInfoUpdateService(properties, serviceInfoHolder, this,
                 changeNotifier);
         this.serverListManager = new ServerListManager(properties, namespace);
@@ -153,7 +154,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     public ServiceInfo subscribe(String serviceName, String groupName, String clusters) throws NacosException {
         String serviceNameWithGroup = NamingUtils.getGroupedName(serviceName, groupName);
         String serviceKey = ServiceInfo.getKey(serviceNameWithGroup, clusters);
-        //这句代码。2.0.3移上来了
+        //去订阅更新
         serviceInfoUpdateService.scheduleUpdateIfAbsent(serviceName, groupName, clusters);
         ServiceInfo result = serviceInfoHolder.getServiceInfoMap().get(serviceKey);
         if (null == result) {

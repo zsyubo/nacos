@@ -74,6 +74,7 @@ public interface NamingClientProxy extends Closeable {
      * @return service info
      * @throws NacosException nacos exception
      */
+    //NamingClientProxyDelegate.queryInstancesOfService
     ServiceInfo queryInstancesOfService(String serviceName, String groupName, String clusters, int udpPort, boolean healthyOnly)
             throws NacosException;
     

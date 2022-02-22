@@ -74,7 +74,7 @@ public abstract class RpcClient implements Closeable {
     
     protected ScheduledExecutorService clientEventExecutor;
 
-    // 信号？
+    // 使用阻塞队列来实现信号
     private final BlockingQueue<ReconnectContext> reconnectionSignal = new ArrayBlockingQueue<ReconnectContext>(1);
     
     protected volatile Connection currentConnection;
@@ -322,7 +322,7 @@ public abstract class RpcClient implements Closeable {
             }
         });
 
-        // 检查rpc通信
+        // 检查rpc通信 心跳也在这里面
         clientEventExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -331,13 +331,16 @@ public abstract class RpcClient implements Closeable {
                         if (isShutdown()) {
                             break;
                         }
+                        // poll(long timeout, TimeUnit unit)：获取并移除此队列的头部，在指定的等待时间前等待可用的元素（如果有必要）。
+                        // 妙啊，2用
                         ReconnectContext reconnectContext = reconnectionSignal
                                 .poll(keepAliveTime, TimeUnit.MILLISECONDS);
                         if (reconnectContext == null) {
                             //check alive time.
                             if (System.currentTimeMillis() - lastActiveTimeStamp >= keepAliveTime) {
-                                // 连接检查是否正常
+                                // 连接检查是否正常,  这地方是健康检查
                                 boolean isHealthy = healthCheck();
+                                // 失败就重连
                                 if (!isHealthy) {
                                     if (currentConnection == null) {
                                         continue;

@@ -24,13 +24,14 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Nacos SPI机制，底层其实就是用的java的ServiceLoader.load
  * Nacos SPI
  * Nacos SPI Service Loader.
  *
  * @author xiweng.yy
  */
 public class NacosServiceLoader {
-    
+    // 存储SPI加载的实例化类
     private static final Map<Class<?>, Collection<Class<?>>> SERVICES = new ConcurrentHashMap<Class<?>, Collection<Class<?>>>();
     
     /**
@@ -77,6 +78,7 @@ public class NacosServiceLoader {
     private static <T> Collection<T> newServiceInstancesFromCache(Class<T> service) {
         Collection<T> result = new LinkedHashSet<T>();
         for (Class<?> each : SERVICES.get(service)) {
+            // 去反射实例化
             result.add((T) newServiceInstance(each));
         }
         return result;

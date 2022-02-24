@@ -9,13 +9,31 @@ NacosServiceDiscovery#getInstances
 			NacosNamingService#init
 				InitUtils#initNamespaceForNaming
 				NacosNamingService#initLogName  初始化日志
+				NotifyCenter类加载，初始化静态块
+				    通过NacosServiceLoader去加载EventPublisher的实现类，本质还是java的 SPI机制
+				    DefaultPublisher#init  启动一个Daemon线程 ===> DefaultPublisher#start
+				        DefaultPublisher#openEventHandler
+				            等待60S
+				            DefaultPublisher#receiveEvent 处理event
+				                迭代subscribers去处理，
+				                    subscriber#ignoreExpireEvent() && lastEventSequence > currentEventSequence  判断是否忽略过期事件
+				                        DefaultPublisher#notifySubscriber  subscriber去处理这个event
+				    ThreadUtils.addShutdownHook(NotifyCenter::shutdown);   搞了一个关闭的钩子
 				NotifyCenter#registerToPublisher(java.lang.Class<? extends com.alibaba.nacos.common.notify.Event>, int)  注册一个生产者
-                    DefaultPublisher.init  初始化DefaultPublisher
+                    DefaultPublisher#init  初始化DefaultPublisher
                     ---> 开辟一个线程 DefaultPublisher#openEventHandler
-				NotifyCenter.registerSubscriber(Subscriber) 注册一个消费者
+				NotifyCenter#registerSubscriber(Subscriber) 注册一个消费者
 				ServiceInfoHolder#ServiceInfoHolder
-				    ServiceInfoHolder.initCacheDir  初始化缓存目录
+				    ServiceInfoHolder#initCacheDir  初始化缓存目录
 				    FailoverReactor#FailoverReactor  数据持久化处理
-                NamingClientProxyDelegate.NamingClientProxyDelegate  初始化客户端代理
-                    NamingClientProxyDelegate.initSecurityProxy  通过用户名密码去链接nacos server
-                    NamingHttpClientProxy.NamingHttpClientProxy  初始化http客户端
+                NamingClientProxyDelegate#NamingClientProxyDelegate  初始化客户端代理
+                    ServiceInfoUpdateService#ServiceInfoUpdateService 服务信息更新服务(也就是同步instance list)
+                    ServerListManager#ServerListManager(java.util.Properties, java.lang.String)  --> Server列表管理类
+                        ServerListManager#initServerAddr  去初始化Nacos Server地址列表
+                    NamingClientProxyDelegate#initSecurityProxy  通过用户名密码去链接nacos server
+                    NamingHttpClientProxy#NamingHttpClientProxy  初始化http客户端
+                    NamingGrpcClientProxy#NamingGrpcClientProxy  初始化GRPC客户端(核心)
+                        GrpcSdkClient#GrpcSdkClient
+                        NamingGrpcRedoService#NamingGrpcRedoService
+                        NamingGrpcClientProxy#start
+                            RpcClient#start   心跳在这里面的

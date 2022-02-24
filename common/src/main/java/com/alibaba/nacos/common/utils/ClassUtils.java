@@ -44,6 +44,7 @@ public final class ClassUtils {
     }
     
     /**
+     * 判断这个对象所代表的类或接口是否与指定参数所代表的类或接口相同，或者是其超类或超接口。
      * Determines if the class or interface represented by this object is either the same as, or is a superclass or
      * superinterface of, the class or interface represented by the specified parameter.
      *

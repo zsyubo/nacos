@@ -62,7 +62,7 @@ public class NacosNamingService implements NamingService {
      * Each Naming service should have different namespace.
      */
     private String namespace;
-    
+    // ps...貌似没地方用到啊
     private String logName;
     
     private ServiceInfoHolder serviceInfoHolder;
@@ -80,6 +80,17 @@ public class NacosNamingService implements NamingService {
 
     // properties: NacosProperties
     public NacosNamingService(Properties properties) throws NacosException {
+//properties:
+//        "secretKey" -> ""
+//        "namespace" -> ""
+//        "username" -> "nacos"
+//        "namingLoadCacheAtStart" -> "false"
+//        "serverAddr" -> "ubuntu.wsl:8848"
+//        "com.alibaba.nacos.naming.log.filename" -> ""
+//        "clusterName" -> "DEFAULT"
+//        "password" -> "nacos"
+//        "accessKey" -> ""
+//        "endpoint" -> ""
         init(properties);
     }
 
@@ -90,9 +101,9 @@ public class NacosNamingService implements NamingService {
         ValidatorUtils.checkInitParam(properties);
         // 初始化NameSpace
         this.namespace = InitUtils.initNamespaceForNaming(properties);
-        // 序列化相关的
+        // 序列化相关的，  所以这里将NoneSelector、ExpressionSelector这两个类进行注册或者销毁
         InitUtils.initSerialization();
-        //初始化 web root context，也就是访问路径吧
+        //初始化 web root context，也就是访问路径吧 ，有可能存在自定义服务名的情况
         InitUtils.initWebRootContext(properties);
         // 初始化Log
         initLogName(properties);
@@ -109,7 +120,7 @@ public class NacosNamingService implements NamingService {
     }
     
     private void initLogName(Properties properties) {
-        //优先是系统参数，然后才是系统配置文件
+        //优先是系统参数，然后才是系统配置文件  -Dcom.alibaba.nacos.naming.log.filename=name.log
         logName = System.getProperty(UtilAndComs.NACOS_NAMING_LOG_NAME);
         if (StringUtils.isEmpty(logName)) {
             // 从配置文件读取logname

@@ -197,7 +197,7 @@ public class InitUtils {
      * </p>
      */
     public static void initSerialization() {
-        // TODO register in implementation class or remove subType
+        // TODO register in implementation class or remove subType  在实现类中注册或删除子类型
         JacksonUtils.registerSubtype(NoneSelector.class, SelectorType.none.name());
         JacksonUtils.registerSubtype(ExpressionSelector.class, SelectorType.label.name());
     }

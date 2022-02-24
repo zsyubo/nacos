@@ -58,7 +58,8 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     private final ServiceInfoUpdateService serviceInfoUpdateService;
     
     private final ServiceInfoHolder serviceInfoHolder;
-    
+
+    // 目前基本没咋用
     private final NamingHttpClientProxy httpClientProxy;
     
     private final NamingGrpcClientProxy grpcClientProxy;
@@ -72,7 +73,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     //    serviceInfoHolder: ServiceInfoHolder
     public NamingClientProxyDelegate(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
             InstancesChangeNotifier changeNotifier) throws NacosException {
-        // 实例信息更新
+        // 实例信息更新，用于实例数据同步
         this.serviceInfoUpdateService = new ServiceInfoUpdateService(properties, serviceInfoHolder, this,
                 changeNotifier);
         this.serverListManager = new ServerListManager(properties, namespace);

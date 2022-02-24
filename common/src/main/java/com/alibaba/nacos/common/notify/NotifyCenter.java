@@ -61,7 +61,7 @@ public class NotifyCenter {
     
     private static final NotifyCenter INSTANCE = new NotifyCenter();
 
-    // 发布慢事件， 在static静态块中初始化, 其实就是一个消费者：
+    // 发布慢事件 SlowEvent， 在static静态块中初始化, 其实就是一个消费者：
     //              com.alibaba.nacos.common.notify.DefaultPublisher.run---->DefaultPublisher#openEventHandler
     private DefaultSharePublisher sharePublisher;
 
@@ -72,23 +72,26 @@ public class NotifyCenter {
     /**
      * Publisher management container.
      */
+    // 每一个DefaultPublisher都起了一个线程
     //  key:InstancesChangeEvent  value:DefaultPublisher
     private final Map<String, EventPublisher> publisherMap = new ConcurrentHashMap<>(16);
     
     static {
         // Internal ArrayBlockingQueue buffer size. For applications with high write throughput,
         // this value needs to be increased appropriately. default value is 16384
+        // 内部ArrayBlockingQueue的缓冲区大小。对于具有高写入量的应用，这个值需要适当增加。默认值是16384
         String ringBufferSizeProperty = "nacos.core.notify.ring-buffer-size";
         ringBufferSize = Integer.getInteger(ringBufferSizeProperty, 16384);
         
         // The size of the public publisher's message staging queue buffer
+        // 公共发布者的消息暂存队列缓冲区的大小
         String shareBufferSizeProperty = "nacos.core.notify.share-buffer-size";
         shareBufferSize = Integer.getInteger(shareBufferSizeProperty, 1024);
 
         // 这地方是提供给第三方去实现的，在默认情况下，这地方是空的
         final Collection<EventPublisher> publishers = NacosServiceLoader.load(EventPublisher.class);
         Iterator<EventPublisher> iterator = publishers.iterator();
-        
+        // 多个取第一个
         if (iterator.hasNext()) {
             clazz = iterator.next().getClass();
         } else {
@@ -198,6 +201,7 @@ public class NotifyCenter {
         // based on subclass's subscribeTypes method return list, it can register to publisher.
         //如果你想监听多个事件，你就分开做，基于子类的subscribeTypes方法的返回列表，它可以注册到发布者。
         if (consumer instanceof SmartSubscriber) {
+            // 其实就是订阅多个事件
             for (Class<? extends Event> subscribeType : ((SmartSubscriber) consumer).subscribeTypes()) {
                 // For case, producer: defaultSharePublisher -> consumer: smartSubscriber.
                 if (ClassUtils.isAssignableFrom(SlowEvent.class, subscribeType)) {
@@ -373,7 +377,7 @@ public class NotifyCenter {
     //    queueMaxSize:16384
     public static EventPublisher registerToPublisher(final Class<? extends Event> eventType,
             final EventPublisherFactory factory, final int queueMaxSize) {
-        // 判断event是不是慢事件
+        // 判断event是不是慢事件，如果是SlowEvent，那么sharePublisher在静态块汇总就已经初始化了
         if (ClassUtils.isAssignableFrom(SlowEvent.class, eventType)) {
             return INSTANCE.sharePublisher;
         }

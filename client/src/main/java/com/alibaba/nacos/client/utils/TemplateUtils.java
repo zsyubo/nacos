@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 public class TemplateUtils {
     
     /**
+     * 如果字符串不为空，则执行。
      * Execute if string not empty.
      *
      * @param source   source

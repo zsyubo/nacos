@@ -108,7 +108,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
             int waitTimes = 60;
             // To ensure that messages are not lost, enable EventHandler when
             // waiting for the first Subscriber to register
-            // 等待60秒
+            // 等待60秒, 这样写很蠢，主要是为了当有订阅者的时候立即去处理
             for (; ; ) {
                 if (shutdown || hasSubscriber() || waitTimes <= 0) {
                     break;
@@ -178,8 +178,9 @@ public class DefaultPublisher extends Thread implements EventPublisher {
      * @param event {@link Event}.
      */
     void receiveEvent(Event event) {
+        // 事件序列号？
         final long currentEventSequence = event.sequence();
-        
+        // 判断是否有订阅者
         if (!hasSubscriber()) {
             LOGGER.warn("[NotifyCenter] the {} is lost, because there is no subscriber.");
             return;
@@ -188,6 +189,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
         // Notification single event listener
         for (Subscriber subscriber : subscribers) {
             // Whether to ignore expiration events
+            // subscriber.ignoreExpireEvent() 忽略过期时间，默认false  ，可能存在过期事件的原因有：有事件，但是一直没注册时间订阅者
             if (subscriber.ignoreExpireEvent() && lastEventSequence > currentEventSequence) {
                 LOGGER.debug("[NotifyCenter] the {} is unacceptable to this subscriber, because had expire",
                         event.getClass());

@@ -42,13 +42,15 @@ import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
  * 服务信息更新服务。
+ * 这个是做定时更新的
  *
  * Service information update service.
  *
  * @author xiweng.yy
  */
 public class ServiceInfoUpdateService implements Closeable {
-    
+
+    // 1s
     private static final long DEFAULT_DELAY = 1000L;
     
     private static final int DEFAULT_UPDATE_CACHE_TIME_MULTIPLE = 6;
@@ -160,7 +162,10 @@ public class ServiceInfoUpdateService implements Closeable {
             this.groupedServiceName = NamingUtils.getGroupedName(serviceName, groupName);
             this.serviceKey = ServiceInfo.getKey(groupedServiceName, clusters);
         }
-        
+
+        /**
+         * 定时去增量同步的
+         */
         @Override
         public void run() {
             long delayTime = DEFAULT_DELAY;
@@ -196,6 +201,7 @@ public class ServiceInfoUpdateService implements Closeable {
                 incFailCount();
                 NAMING_LOGGER.warn("[NA] failed to update serviceName: " + groupedServiceName, e);
             } finally {
+                // 去发起下一次更新,如果更新正常，那么下一次处罚时间为60s
                 executor.schedule(this, Math.min(delayTime << failCount, DEFAULT_DELAY * 60), TimeUnit.MILLISECONDS);
             }
         }

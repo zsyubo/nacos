@@ -62,6 +62,7 @@ public class NamingGrpcRedoService implements ConnectionEventListener {
     
     public NamingGrpcRedoService(NamingGrpcClientProxy clientProxy) {
         this.redoExecutor = new ScheduledThreadPoolExecutor(REDO_THREAD, new NameThreadFactory(REDO_THREAD_NAME));
+        // 延时3秒 ，主要是等待connect
         this.redoExecutor.scheduleWithFixedDelay(new RedoScheduledTask(clientProxy, this), DEFAULT_REDO_DELAY,
                 DEFAULT_REDO_DELAY, TimeUnit.MILLISECONDS);
     }

@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DefaultSharePublisher extends DefaultPublisher implements ShardedEventPublisher {
 
+    // 一个事件->订阅者的集合，可以知道一个事件被那些订阅者订阅
     //<ServerListChangedEvent:[NamingGrpcClientProxy]>
     private final Map<Class<? extends SlowEvent>, Set<Subscriber>> subMappings = new ConcurrentHashMap<>();
     

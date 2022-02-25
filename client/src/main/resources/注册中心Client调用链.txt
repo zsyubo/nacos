@@ -37,3 +37,13 @@ NacosServiceDiscovery#getInstances
                         NamingGrpcRedoService#NamingGrpcRedoService
                         NamingGrpcClientProxy#start
                             RpcClient#start   心跳在这里面的
+
+com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, java.lang.String, boolean)
+                                                    public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
+    NacosNamingService#selectInstances(java.lang.String, java.lang.String, java.util.List<java.lang.String>, boolean, boolean)
+        ServiceInfoHolder#getServiceInfo
+        NamingClientProxyDelegate#subscribe
+            ServiceInfoUpdateService#scheduleUpdateIfAbsent
+                ServiceInfoUpdateService#addTask  定时同步任务
+                    executor#schedule(task, 1000L, TimeUnit.MILLISECONDS); ===>ServiceInfoUpdateService.UpdateTask#run
+        NacosNamingService#selectInstances(com.alibaba.nacos.api.naming.pojo.ServiceInfo, boolean)  过滤不健康的实例

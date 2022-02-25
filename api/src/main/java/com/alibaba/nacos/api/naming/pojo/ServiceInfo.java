@@ -57,7 +57,8 @@ public class ServiceInfo {
 
     // 实例列表
     private List<Instance> hosts = new ArrayList<Instance>();
-    
+
+    // 最后从server拉取时间
     private long lastRefTime = 0L;
     
     private String checksum = "";

@@ -182,6 +182,7 @@ public class ServerListManager implements ServerListFactory, Closeable {
     
     @Override
     public String genNextServer() {
+        // 计算随机下标
         int index = currentIndex.incrementAndGet() % getServerList().size();
         return getServerList().get(index);
     }

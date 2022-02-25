@@ -272,6 +272,9 @@ public class NacosNamingService implements NamingService {
     // namingService().selectInstances(serviceId, group, true);
     @Override
     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
+//        serviceName: shop-user-service
+//        groupName: DEFAULT_GROUP
+//        healthy:true
         return selectInstances(serviceName, groupName, healthy, true);
     }
     
@@ -284,8 +287,8 @@ public class NacosNamingService implements NamingService {
     @Override
     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy, boolean subscribe)
             throws NacosException {
-        //serviceName
-        //groupName
+//        serviceName: shop-user-service
+//        groupName: DEFAULT_GROUP
         //new ArrayList<String>()
         //healthy: true
         //subscribe: true
@@ -310,9 +313,9 @@ public class NacosNamingService implements NamingService {
         return selectInstances(serviceName, Constants.DEFAULT_GROUP, clusters, healthy, subscribe);
     }
 
-    //serviceName
-    //groupName
-    //clusters:new ArrayList<String>()
+    //serviceName: shop-user-service
+    //groupName: DEFAULT_GROUP
+    //new ArrayList<String>()
     //healthy: true
     //subscribe: true
     @Override
@@ -324,6 +327,7 @@ public class NacosNamingService implements NamingService {
         String clusterString = StringUtils.join(clusters, ",");
         // 是否订阅, 默认为true
         if (subscribe) {
+            // 从本地列表中获取
             serviceInfo = serviceInfoHolder.getServiceInfo(serviceName, groupName, clusterString);
             if (null == serviceInfo) {
                 serviceInfo = clientProxy.subscribe(serviceName, groupName, clusterString);
@@ -343,6 +347,7 @@ public class NacosNamingService implements NamingService {
         Iterator<Instance> iterator = list.iterator();
         while (iterator.hasNext()) {
             Instance instance = iterator.next();
+            // 不健康的就移除
             if (healthy != instance.isHealthy() || !instance.isEnabled() || instance.getWeight() <= 0) {
                 iterator.remove();
             }

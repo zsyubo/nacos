@@ -135,7 +135,7 @@ public class ServiceInfoHolder implements Closeable {
         // 把serviceName和groupName组合起来
         String groupedServiceName = NamingUtils.getGroupedName(serviceName, groupName);
         String key = ServiceInfo.getKey(groupedServiceName, clusters);
-        //
+        // 是否处于故障的情况
         if (failoverReactor.isFailoverSwitch()) {
             return failoverReactor.getService(key);
         }

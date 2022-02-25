@@ -109,7 +109,9 @@ public abstract class RpcClient implements Closeable {
      * 处理来自 server的请求
      * handlers to process server push request.
      */
-    //new ArrayList(ConnectResetRequestHandler(), CustomRegisterServerRequestHandler(匿名内部类), NamingPushRequestHandler(serviceInfoHolder));
+    //new ArrayList(ConnectResetRequestHandler()
+    //      , CustomRegisterServerRequestHandler(匿名内部类)
+    //      , NamingPushRequestHandler(serviceInfoHolder));
     protected List<ServerRequestHandler> serverRequestHandlers = new ArrayList<ServerRequestHandler>();
     
     static {
@@ -221,6 +223,7 @@ public abstract class RpcClient implements Closeable {
         LoggerUtils.printIfInfoEnabled(LOGGER, "[{}]Notify connected event to listeners.", name);
         for (ConnectionEventListener connectionEventListener : connectionEventListeners) {
             try {
+                //NamingGrpcRedoService#onConnected
                 connectionEventListener.onConnected();
             } catch (Throwable throwable) {
                 LoggerUtils.printIfErrorEnabled(LOGGER, "[{}]Notify connect listener error,listener ={}", name,
@@ -300,7 +303,7 @@ public abstract class RpcClient implements Closeable {
             }
         });
 
-        // 处理event事件
+        // 处理eventLinkedBlockingQueue中的event事件
         // connection event consumer.
         clientEventExecutor.submit(new Runnable() {
             @Override
@@ -655,7 +658,7 @@ public abstract class RpcClient implements Closeable {
     
     /**
      * increase offset of the nacos server port for the rpc server port.
-     *
+     *  端口偏移，GRPC的server端口8848+1000
      * @return rpc port offset
      */
     public abstract int rpcPortOffset();

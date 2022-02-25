@@ -63,6 +63,7 @@ public class NotifyCenter {
 
     // 发布慢事件 SlowEvent， 在static静态块中初始化, 其实就是一个消费者：
     //              com.alibaba.nacos.common.notify.DefaultPublisher.run---->DefaultPublisher#openEventHandler
+    //               [NamingGrpcClientProxy]
     private DefaultSharePublisher sharePublisher;
 
     // 普通时间处理
@@ -74,6 +75,7 @@ public class NotifyCenter {
      */
     // 每一个DefaultPublisher都起了一个线程
     //  key:InstancesChangeEvent  value:DefaultPublisher
+    //
     private final Map<String, EventPublisher> publisherMap = new ConcurrentHashMap<>(16);
     
     static {

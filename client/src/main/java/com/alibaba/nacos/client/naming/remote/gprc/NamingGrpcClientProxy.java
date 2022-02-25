@@ -224,6 +224,7 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     }
     
     /**
+     * 中心订阅操作
      * Execute subscribe operation.
      *
      * @param serviceName service name

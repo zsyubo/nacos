@@ -87,28 +87,18 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     
     @Override
     public void startServer() throws Exception {
+        // GRPC的
         final MutableHandlerRegistry handlerRegistry = new MutableHandlerRegistry();
-        
+
+        // 拦截器
+        //服务器拦截器来设置连接ID。 抽取成一个静态内部类了
         // server interceptor to set connection id.
-        ServerInterceptor serverInterceptor = new ServerInterceptor() {
-            @Override
-            public <T, S> ServerCall.Listener<T> interceptCall(ServerCall<T, S> call, Metadata headers,
-                    ServerCallHandler<T, S> next) {
-                Context ctx = Context.current()
-                        .withValue(CONTEXT_KEY_CONN_ID, call.getAttributes().get(TRANS_KEY_CONN_ID))
-                        .withValue(CONTEXT_KEY_CONN_REMOTE_IP, call.getAttributes().get(TRANS_KEY_REMOTE_IP))
-                        .withValue(CONTEXT_KEY_CONN_REMOTE_PORT, call.getAttributes().get(TRANS_KEY_REMOTE_PORT))
-                        .withValue(CONTEXT_KEY_CONN_LOCAL_PORT, call.getAttributes().get(TRANS_KEY_LOCAL_PORT));
-                if (REQUEST_BI_STREAM_SERVICE_NAME.equals(call.getMethodDescriptor().getServiceName())) {
-                    Channel internalChannel = getInternalChannel(call);
-                    ctx = ctx.withValue(CONTEXT_KEY_CHANNEL, internalChannel);
-                }
-                return Contexts.interceptCall(ctx, call, headers, next);
-            }
-        };
-        
+        ServerInterceptor serverInterceptor = new CustomServerInterceptor();
+        //grpc中添加处理服务
+        //MutableHandlerRegistry
+        //BaseGrpcServer.CustomServerInterceptor
         addServices(handlerRegistry, serverInterceptor);
-        
+        //构造grpc服务端
         server = ServerBuilder.forPort(getServicePort()).executor(getRpcExecutor())
                 .maxInboundMessageSize(getInboundMessageSize()).fallbackHandlerRegistry(handlerRegistry)
                 .compressorRegistry(CompressorRegistry.getDefaultInstance())
@@ -123,6 +113,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                         int remotePort = remoteAddress.getPort();
                         int localPort = localAddress.getPort();
                         String remoteIp = remoteAddress.getAddress().getHostAddress();
+                        // 这地方当有新的请求进来时，去自动生成对应的key
                         Attributes attrWrapper = transportAttrs.toBuilder()
                                 .set(TRANS_KEY_CONN_ID, System.currentTimeMillis() + "_" + remoteIp + "_" + remotePort)
                                 .set(TRANS_KEY_REMOTE_IP, remoteIp).set(TRANS_KEY_REMOTE_PORT, remotePort)
@@ -151,6 +142,27 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         
         server.start();
     }
+
+    /**
+     * 自定义的
+     */
+    public  final class CustomServerInterceptor implements ServerInterceptor{
+        @Override
+        public <T, S> ServerCall.Listener<T> interceptCall(ServerCall<T, S> call, Metadata headers,
+                ServerCallHandler<T, S> next) {
+            Context ctx = Context.current()
+                    .withValue(CONTEXT_KEY_CONN_ID, call.getAttributes().get(TRANS_KEY_CONN_ID))
+                    .withValue(CONTEXT_KEY_CONN_REMOTE_IP, call.getAttributes().get(TRANS_KEY_REMOTE_IP))
+                    .withValue(CONTEXT_KEY_CONN_REMOTE_PORT, call.getAttributes().get(TRANS_KEY_REMOTE_PORT))
+                    .withValue(CONTEXT_KEY_CONN_LOCAL_PORT, call.getAttributes().get(TRANS_KEY_LOCAL_PORT));
+            if (REQUEST_BI_STREAM_SERVICE_NAME.equals(call.getMethodDescriptor().getServiceName())) {
+                Channel internalChannel = getInternalChannel(call);
+                ctx = ctx.withValue(CONTEXT_KEY_CHANNEL, internalChannel);
+            }
+            return Contexts.interceptCall(ctx, call, headers, next);
+        }
+    }
+
     
     private int getInboundMessageSize() {
         String messageSize = System
@@ -162,7 +174,10 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         ServerStream serverStream = (ServerStream) ReflectUtils.getFieldValue(serverCall, "stream");
         return (Channel) ReflectUtils.getFieldValue(serverStream, "channel");
     }
-    
+
+    //这里会向io.grpc.Server对象中注册服务，当有客户端连接或接收到请求时，会触发对应的服务
+    //handlerRegistry: MutableHandlerRegistry
+    //serverInterceptor: BaseGrpcServer.CustomServerInterceptor
     private void addServices(MutableHandlerRegistry handlerRegistry, ServerInterceptor... serverInterceptor) {
         
         // unary common call register.
@@ -171,20 +186,22 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                 .setFullMethodName(MethodDescriptor.generateFullMethodName(REQUEST_SERVICE_NAME, REQUEST_METHOD_NAME))
                 .setRequestMarshaller(ProtoUtils.marshaller(Payload.getDefaultInstance()))
                 .setResponseMarshaller(ProtoUtils.marshaller(Payload.getDefaultInstance())).build();
-        
+        //服务回调（客户端注册时，这里方法会接收到）
         final ServerCallHandler<Payload, Payload> payloadHandler = ServerCalls
                 .asyncUnaryCall((request, responseObserver) -> {
+                    //服务回调（客户端注册时，这里方法会接收到）
                     grpcCommonRequestAcceptor.request(request, responseObserver);
                 });
-        
+        //构造服务
         final ServerServiceDefinition serviceDefOfUnaryPayload = ServerServiceDefinition.builder(REQUEST_SERVICE_NAME)
                 .addMethod(unaryPayloadMethod, payloadHandler).build();
+        //服务注册到grpc中
         handlerRegistry.addService(ServerInterceptors.intercept(serviceDefOfUnaryPayload, serverInterceptor));
         
         // bi stream register.
         final ServerCallHandler<Payload, Payload> biStreamHandler = ServerCalls.asyncBidiStreamingCall(
                 (responseObserver) -> grpcBiStreamRequestAcceptor.requestBiStream(responseObserver));
-        
+        //构造服务
         final MethodDescriptor<Payload, Payload> biStreamMethod = MethodDescriptor.<Payload, Payload>newBuilder()
                 .setType(MethodDescriptor.MethodType.BIDI_STREAMING).setFullMethodName(MethodDescriptor
                         .generateFullMethodName(REQUEST_BI_STREAM_SERVICE_NAME, REQUEST_BI_STREAM_METHOD_NAME))
@@ -212,13 +229,17 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     public abstract ThreadPoolExecutor getRpcExecutor();
     
     static final Attributes.Key<String> TRANS_KEY_CONN_ID = Attributes.Key.create("conn_id");
-    
+
+    //在BaseGrpcServer#startServer中设置的
     static final Attributes.Key<String> TRANS_KEY_REMOTE_IP = Attributes.Key.create("remote_ip");
-    
+
+    //在BaseGrpcServer#startServer中设置的
     static final Attributes.Key<Integer> TRANS_KEY_REMOTE_PORT = Attributes.Key.create("remote_port");
-    
+
+    //在BaseGrpcServer#startServer中设置的
     static final Attributes.Key<Integer> TRANS_KEY_LOCAL_PORT = Attributes.Key.create("local_port");
-    
+
+    //在BaseGrpcServer#startServer中设置的
     static final Context.Key<String> CONTEXT_KEY_CONN_ID = Context.key("conn_id");
     
     static final Context.Key<String> CONTEXT_KEY_CONN_REMOTE_IP = Context.key("remote_ip");

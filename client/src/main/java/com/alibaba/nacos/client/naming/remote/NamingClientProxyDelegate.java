@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 /**
+ * 代理模式
+ *
  * 委托命名客户端代理。 这地方是屏蔽底层网络细节，把一些操作进行封装
  * Delegate of naming client proxy.
  *

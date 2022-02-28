@@ -1,0 +1,28 @@
+GRPC启动
+com.alibaba.nacos.core.remote.BaseRpcServer#start
+    ConfigChangeClusterSyncRequest -> ConfigChangeClusterSyncRequestHandler
+    ConfigPublishRequest -> ConfigPublishRequestHandler
+    ConfigBatchListenRequest -> ConfigChangeBatchListenRequestHandler
+    ServiceListRequest -> ServiceListRequestHandler
+    ConfigQueryRequest -> ConfigQueryRequestHandler
+    DistroDataRequest -> DistroDataRequestHandler
+    SubscribeServiceRequest -> SubscribeServiceRequestHandler
+    ConfigRemoveRequest -> ConfigRemoveRequestHandler
+    ServiceQueryRequest -> ServiceQueryRequestHandler
+    HealthCheckRequest -> HealthCheckRequestHandler
+    ServerLoaderInfoRequest -> ServerLoaderInfoRequestHandler
+    ServerReloadRequest -> ServerReloaderRequestHandler
+    InstanceRequest -> InstanceRequestHandler
+
+
+
+
+
+
+
+
+
+
+
+ContextRefreshedEvent事件
+    com.alibaba.nacos.core.remote.RequestHandlerRegistry#onApplicationEvent

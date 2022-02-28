@@ -27,6 +27,7 @@ import com.alibaba.nacos.api.remote.response.Response;
 import com.alibaba.nacos.api.remote.response.ResponseCode;
 import com.alibaba.nacos.api.remote.response.ServerCheckResponse;
 import com.alibaba.nacos.common.remote.client.grpc.GrpcUtils;
+import com.alibaba.nacos.consistency.entity.Data;
 import com.alibaba.nacos.core.remote.Connection;
 import com.alibaba.nacos.core.remote.ConnectionManager;
 import com.alibaba.nacos.core.remote.RequestHandler;
@@ -36,6 +37,9 @@ import com.alibaba.nacos.sys.utils.ApplicationUtils;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.alibaba.nacos.core.remote.grpc.BaseGrpcServer.CONTEXT_KEY_CONN_ID;
 
@@ -75,21 +79,27 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         
         traceIfNecessary(grpcRequest, true);
         String type = grpcRequest.getMetadata().getType();
-        
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String stationTime = dateFormat.format(new Date());
+        System.out.println("time:"+stationTime+";;type:"+type);
+        //sever是否已启动，主要是，服务还在启动中的情况, 让客户端稍后在重试
         //server is on starting.
         if (!ApplicationUtils.isStarted()) {
             Payload payloadResponse = GrpcUtils.convert(
                     buildErrorResponse(NacosException.INVALID_SERVER_STATUS, "Server is starting,please try later."));
+            //黑名单校验？
             traceIfNecessary(payloadResponse, false);
             responseObserver.onNext(payloadResponse);
             
             responseObserver.onCompleted();
             return;
         }
-        
+        // 服务检查请求处理
         // server check.
         if (ServerCheckRequest.class.getSimpleName().equals(type)) {
             Payload serverCheckResponseP = GrpcUtils.convert(new ServerCheckResponse(CONTEXT_KEY_CONN_ID.get()));
+            //黑名单校验
             traceIfNecessary(serverCheckResponseP, false);
             responseObserver.onNext(serverCheckResponseP);
             responseObserver.onCompleted();
@@ -97,6 +107,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         }
         
         RequestHandler requestHandler = requestHandlerRegistry.getByRequestType(type);
+        // 没找到对应的handler
         //no handler found.
         if (requestHandler == null) {
             Loggers.REMOTE_DIGEST.warn(String.format("[%s] No handler for request type : %s :", "grpc", type));
@@ -107,7 +118,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
             responseObserver.onCompleted();
             return;
         }
-        
+        // 链接id
         //check connection status.
         String connectionId = CONTEXT_KEY_CONN_ID.get();
         boolean requestValid = connectionManager.checkValid(connectionId);

@@ -1,0 +1,1 @@
+mvn clean compile package install -Dmaven.test.skip=true  -Drat.skip=true  -Dpmd.skip=true -Dcheckstyle.skip=true

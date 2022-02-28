@@ -17,6 +17,7 @@
 package com.alibaba.nacos.api.remote.request;
 
 /**
+ * 链接serve 建立长连接请求
  * request to check server if unimpeded.
  *
  * @author liuzunfei

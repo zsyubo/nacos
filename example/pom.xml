@@ -28,10 +28,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>nacos-example</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>nacos-example ${project.version}</name>
     <url>http://nacos.io</url>
+    <modules>
+        <module>cloud-example</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

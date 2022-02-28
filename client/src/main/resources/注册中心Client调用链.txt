@@ -36,7 +36,7 @@ NacosServiceDiscovery#getInstances
                         GrpcSdkClient#GrpcSdkClient
                         NamingGrpcRedoService#NamingGrpcRedoService
                         NamingGrpcClientProxy#start
-                            RpcClient#start   心跳在这里面的
+                            RpcClient#start   心跳在这里面的  ---> HealthCheckRequest
 
 com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, java.lang.String, boolean)
                                                     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
@@ -44,6 +44,9 @@ com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, jav
         ServiceInfoHolder#getServiceInfo
         NamingClientProxyDelegate#subscribe
             ServiceInfoUpdateService#scheduleUpdateIfAbsent
-                ServiceInfoUpdateService#addTask  定时同步任务
+                ServiceInfoUpdateService#addTask  定时同步任务  ----> ServiceQueryRequest
                     executor#schedule(task, 1000L, TimeUnit.MILLISECONDS); ===>ServiceInfoUpdateService.UpdateTask#run
         NacosNamingService#selectInstances(com.alibaba.nacos.api.naming.pojo.ServiceInfo, boolean)  过滤不健康的实例
+
+#第一区链接客户端、重连的情况
+com.alibaba.nacos.common.remote.client.grpc.GrpcClient#connectToServer

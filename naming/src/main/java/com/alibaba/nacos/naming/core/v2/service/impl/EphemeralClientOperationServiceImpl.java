@@ -32,6 +32,7 @@ import com.alibaba.nacos.naming.pojo.Subscriber;
 import org.springframework.stereotype.Component;
 
 /**
+ * 为短暂的客户和服务提供操作服务。
  * Operation service for ephemeral clients and services.
  *
  * @author xiweng.yy

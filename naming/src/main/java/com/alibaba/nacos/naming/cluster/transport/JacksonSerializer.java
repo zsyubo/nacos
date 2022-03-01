@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
+ * 使用Jackson序列化
  * Use Jackson to serialize data.
  *
  * @author yangyi

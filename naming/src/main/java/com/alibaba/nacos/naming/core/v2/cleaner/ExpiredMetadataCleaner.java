@@ -46,6 +46,7 @@ public class ExpiredMetadataCleaner extends AbstractNamingCleaner {
             NamingMetadataOperateService metadataOperateService) {
         this.metadataManager = metadataManager;
         this.metadataOperateService = metadataOperateService;
+        // 5秒执行一次
         GlobalExecutor.scheduleExpiredClientCleaner(this, INITIAL_DELAY, GlobalConfig.getExpiredMetadataCleanInterval(),
                 TimeUnit.MILLISECONDS);
     }
@@ -59,6 +60,7 @@ public class ExpiredMetadataCleaner extends AbstractNamingCleaner {
     public void doClean() {
         long currentTime = System.currentTimeMillis();
         for (ExpiredMetadataInfo each : metadataManager.getExpiredMetadataInfos()) {
+            // 是否超过60s了
             if (currentTime - each.getCreateTime() > GlobalConfig.getExpiredMetadataExpiredTime()) {
                 removeExpiredMetadata(each);
             }

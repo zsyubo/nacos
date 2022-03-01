@@ -45,10 +45,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Component("connectionBasedClientManager")
 public class ConnectionBasedClientManager extends ClientConnectionEventListener implements ClientManager {
-    
+
+    // 当前链接客户端
     private final ConcurrentMap<String, ConnectionBasedClient> clients = new ConcurrentHashMap<>();
     
     public ConnectionBasedClientManager() {
+        // 5秒执行一次
         GlobalExecutor
                 .scheduleExpiredClientCleaner(new ExpiredClientCleaner(this), 0, Constants.DEFAULT_HEART_BEAT_INTERVAL,
                         TimeUnit.MILLISECONDS);
@@ -148,6 +150,7 @@ public class ConnectionBasedClientManager extends ClientConnectionEventListener 
             long currentTime = System.currentTimeMillis();
             for (String each : clientManager.allClientId()) {
                 ConnectionBasedClient client = (ConnectionBasedClient) clientManager.getClient(each);
+                // 3分钟没活动的连接就释放
                 if (null != client && client.isExpire(currentTime)) {
                     clientManager.clientDisconnected(each);
                 }

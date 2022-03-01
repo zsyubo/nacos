@@ -447,6 +447,7 @@ public class EnvUtil {
     }
     
     /**
+     * 获得可用的核心数
      * Get a scale of available processor numbers from environment.
      *
      * @param scale scale from 0 to 1.

@@ -50,6 +50,7 @@ public class EmptyServiceAutoCleanerV2 extends AbstractNamingCleaner {
             ServiceStorage serviceStorage) {
         this.clientServiceIndexesManager = clientServiceIndexesManager;
         this.serviceStorage = serviceStorage;
+        // 你妈的。。直接在构造的时候初始化定时任务， 30S一次
         GlobalExecutor.scheduleExpiredClientCleaner(this, TimeUnit.SECONDS.toMillis(30),
                 GlobalConfig.getEmptyServiceCleanInterval(), TimeUnit.MILLISECONDS);
         
@@ -74,11 +75,14 @@ public class EmptyServiceAutoCleanerV2 extends AbstractNamingCleaner {
     }
     
     private void cleanEmptyService(Service service) {
+        // 获取注册的client instance
         Collection<String> registeredService = clientServiceIndexesManager.getAllClientsRegisteredService(service);
+        //                                  60秒过期
         if (registeredService.isEmpty() && isTimeExpired(service)) {
             Loggers.SRV_LOG.warn("namespace : {}, [{}] services are automatically cleaned", service.getNamespace(),
                     service.getGroupedServiceName());
             clientServiceIndexesManager.removePublisherIndexesByEmptyService(service);
+            // 从ServiceManager中删除这个实例
             ServiceManager.getInstance().removeSingleton(service);
             serviceStorage.removeData(service);
             NotifyCenter.publishEvent(new MetadataEvent.ServiceMetadataEvent(service, true));

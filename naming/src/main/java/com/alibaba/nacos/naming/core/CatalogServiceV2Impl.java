@@ -133,11 +133,13 @@ public class CatalogServiceV2Impl implements CatalogService {
         ObjectNode result = JacksonUtils.createEmptyJsonNode();
         List<ServiceView> serviceViews = new LinkedList<>();
         Collection<Service> services = patternServices(namespaceId, groupName, serviceName);
+        // 过滤空的项目
         if (ignoreEmptyService) {
             services = services.stream().filter(each -> 0 != serviceStorage.getData(each).ipCount())
                     .collect(Collectors.toList());
         }
         result.put(FieldsConstants.COUNT, services.size());
+        // 计算分页
         services = doPage(services, pageNo - 1, pageSize);
         for (Service each : services) {
             ServiceMetadata serviceMetadata = metadataManager.getServiceMetadata(each).orElseGet(ServiceMetadata::new);

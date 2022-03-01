@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
+ * 实例元数据处理器。
  * Instance metadata processor.
  *
  * @author xiweng.yy

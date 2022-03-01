@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
+/**上报自身状态给集群中的其他server。。我猜想去掉的原因是为了换成GRPC
  * Report local server status to other server.
  *
  * @author nacos

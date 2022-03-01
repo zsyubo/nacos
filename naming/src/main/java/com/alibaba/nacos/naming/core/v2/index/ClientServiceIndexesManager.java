@@ -42,12 +42,15 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Component
 public class ClientServiceIndexesManager extends SmartSubscriber {
-    
+
+    //提供者Clint Instance列表，key为Service实例
     private final ConcurrentMap<Service, Set<String>> publisherIndexes = new ConcurrentHashMap<>();
-    
+
+    //订阅者Clint Instance列表，key为Service实例
     private final ConcurrentMap<Service, Set<String>> subscriberIndexes = new ConcurrentHashMap<>();
     
     public ClientServiceIndexesManager() {
+        // 订阅了多个事件
         NotifyCenter.registerSubscriber(this, NamingEventPublisherFactory.getInstance());
     }
     

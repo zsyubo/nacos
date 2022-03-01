@@ -55,6 +55,7 @@ public class DoubleWriteEventListener extends Subscriber<ServiceEvent.ServiceCha
         this.doubleWriteDelayTaskEngine = doubleWriteDelayTaskEngine;
         NotifyCenter.registerSubscriber(this, NamingEventPublisherFactory.getInstance());
         stopDoubleWrite = EnvUtil.getStandaloneMode();
+        // 如果是单机，就没必要进行双写检查
         if (!stopDoubleWrite) {
             Thread doubleWriteEnabledChecker = new DoubleWriteEnabledChecker();
             doubleWriteEnabledChecker.start();

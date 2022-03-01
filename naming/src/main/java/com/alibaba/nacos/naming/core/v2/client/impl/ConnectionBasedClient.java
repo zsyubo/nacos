@@ -72,6 +72,7 @@ public class ConnectionBasedClient extends AbstractClient {
     
     @Override
     public boolean isExpire(long currentTime) {
+        // 3分钟没活动的连接就释放
         return !isNative() && currentTime - getLastRenewTime() > ClientConfig.getInstance().getClientExpiredTime();
     }
 }

@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * 在升级过程中的能力判断。
  * Ability judgement during upgrading.
  *
  * @author xiweng.yy

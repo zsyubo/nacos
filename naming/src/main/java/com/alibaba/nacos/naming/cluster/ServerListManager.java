@@ -64,7 +64,8 @@ public class ServerListManager extends MemberChangeListener {
     private final ServerMemberManager memberManager;
     
     private final Synchronizer synchronizer = new ServerStatusSynchronizer();
-    
+
+    // nacos server列表
     private volatile List<Member> servers;
     
     public ServerListManager(final SwitchDomain switchDomain, final ServerMemberManager memberManager) {
@@ -205,7 +206,7 @@ public class ServerListManager extends MemberChangeListener {
                 if (EnvUtil.getPort() <= 0) {
                     return;
                 }
-                
+                // 获得可用的核心数
                 int weight = EnvUtil.getAvailableProcessors(0.5);
                 if (weight <= 0) {
                     weight = 1;
@@ -214,22 +215,22 @@ public class ServerListManager extends MemberChangeListener {
                 long curTime = System.currentTimeMillis();
                 String status = LOCALHOST_SITE + "#" + EnvUtil.getLocalAddress() + "#" + curTime + "#" + weight
                         + "\r\n";
-                
+                // 服务列表
                 List<Member> allServers = getServers();
-                
+                // 判断allServers中是否包含本地ip server
                 if (!contains(EnvUtil.getLocalAddress())) {
                     Loggers.SRV_LOG.error("local ip is not in serverlist, ip: {}, serverlist: {}",
                             EnvUtil.getLocalAddress(), allServers);
                     return;
                 }
-                
+                // !(EnvUtil.getLocalAddress().contains(InternetAddressUtil.localHostIP()))  以为多网卡的原因，所以在获取启动ip时，可能拿到的不是localhost ip
                 if (allServers.size() > 0 && !EnvUtil.getLocalAddress()
                         .contains(InternetAddressUtil.localHostIP())) {
                     for (Member server : allServers) {
+                        // 判断是不是自身。是自身就不进行其他操作
                         if (Objects.equals(server.getAddress(), EnvUtil.getLocalAddress())) {
                             continue;
                         }
-                        
                         // This metadata information exists from 1.3.0 onwards "version"
                         if (server.getExtendVal(MemberMetaDataConstants.VERSION) != null) {
                             Loggers.SRV_LOG
@@ -241,13 +242,14 @@ public class ServerListManager extends MemberChangeListener {
                         
                         Message msg = new Message();
                         msg.setData(status);
-                        
+                        // 集群间同步   ServerStatusSynchronizer#send
                         synchronizer.send(server.getAddress(), msg);
                     }
                 }
             } catch (Exception e) {
                 Loggers.SRV_LOG.error("[SERVER-STATUS] Exception while sending server status", e);
             } finally {
+                // 2s
                 GlobalExecutor
                         .registerServerStatusReporter(this, switchDomain.getServerStatusSynchronizationPeriodMillis());
             }

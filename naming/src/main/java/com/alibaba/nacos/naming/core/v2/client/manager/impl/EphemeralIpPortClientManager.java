@@ -56,6 +56,7 @@ public class EphemeralIpPortClientManager implements ClientManager {
     
     public EphemeralIpPortClientManager(DistroMapper distroMapper, SwitchDomain switchDomain) {
         this.distroMapper = distroMapper;
+        //5秒钟一次。。
         GlobalExecutor.scheduleExpiredClientCleaner(new ExpiredClientCleaner(this, switchDomain), 0,
                 Constants.DEFAULT_HEART_BEAT_INTERVAL, TimeUnit.MILLISECONDS);
         clientFactory = ClientFactoryHolder.getInstance().findClientFactory(ClientConstants.EPHEMERAL_IP_PORT);
@@ -142,6 +143,7 @@ public class EphemeralIpPortClientManager implements ClientManager {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
+            // 空的
             for (String each : clientManager.allClientId()) {
                 IpPortBasedClient client = (IpPortBasedClient) clientManager.getClient(each);
                 if (null != client && isExpireClient(currentTime, client)) {

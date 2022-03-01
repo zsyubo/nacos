@@ -129,6 +129,7 @@ public class CatalogController {
     
     /**
      * List service detail information.
+     * 获取全部client instance列表
      *
      * @param withInstances     whether return instances
      * @param namespaceId       namespace id
@@ -149,8 +150,9 @@ public class CatalogController {
             @RequestParam(name = "groupNameParam", defaultValue = StringUtils.EMPTY) String groupName,
             @RequestParam(name = "instance", defaultValue = StringUtils.EMPTY) String containedInstance,
             @RequestParam(required = false) boolean hasIpCount) throws NacosException {
-        
+        // 一般是false
         if (withInstances) {
+            //CatalogServiceV2Impl#pageListServiceDetail
             return judgeCatalogService().pageListServiceDetail(namespaceId, groupName, serviceName, pageNo, pageSize);
         }
         return judgeCatalogService()
@@ -193,6 +195,7 @@ public class CatalogController {
     }
     
     private CatalogService judgeCatalogService() {
+        // 是否去使用GRPC
         return upgradeJudgement.isUseGrpcFeatures() ? catalogServiceV2 : catalogServiceV1;
     }
 }

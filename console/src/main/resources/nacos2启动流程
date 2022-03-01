@@ -15,14 +15,47 @@ com.alibaba.nacos.core.remote.BaseRpcServer#start
     InstanceRequest -> InstanceRequestHandler
 
 
+com.alibaba.nacos.naming.cluster.ServerListManager
+    上报自身Server状态给集群中的其他Server
+
+JacksonSerializer
+    使用Jackson序列化
+
+ServiceManager  存放注册中心的Client Instace
 
 
+EmptyServiceAutoCleanerV2#doClean  清理注册表中无用的数据，也就是一个服务没有client Instance 且过期了
+    在构造方法中进行定时任务初始化
+    EmptyServiceAutoCleanerV2#cleanEmptyService
+        ClientServiceIndexesManager#getAllClientsRegisteredService 获取Service下面的所有Client Instance
+            ClientServiceIndexesManager#removePublisherIndexesByEmptyService  从published map中删除到这个空的Service
+            v2.ServiceManager#removeSingleton  删除
+            com.alibaba.nacos.naming.core.v2.index.ServiceStorage.removeData
+            NotifyCenter.publishEvent(new MetadataEvent.ServiceMetadataEvent(service, true));  发布一个事件
+
+ExpiredMetadataCleaner  清理metadataManager中的数据 5秒一次
+
+ConnectionBasedClientManager 去清理并释放Client Instance
+
+EphemeralIpPortClientManager 目前不知道作用
 
 
+InstanceMetadataProcessor  实例元数据处理器。同时此类去初始化了CP协议，JRAFT，重点
+ServiceMetadataProcessor
+
+EphemeralClientOperationServiceImpl    临时节点相关操作
+PersistentClientOperationServiceImpl  和协议有关  持久化节点相关操作
+ClientOperationServiceProxy   EphemeralClientOperationServiceImpl、PersistentClientOperationServiceImpl的代理类
+
+DoubleWriteEventListener 双写检查，集群同步的
+
+UpgradeJudgement 不太清楚，里面对一些特性进行判断，，可以使用此类来判断是否启动了GRPC、JRAFT特性
 
 
-
+ClientServiceIndexesManager 订阅了多个事件
+NamingMetadataManager 订阅了多个事件
 
 
 ContextRefreshedEvent事件
     com.alibaba.nacos.core.remote.RequestHandlerRegistry#onApplicationEvent
+

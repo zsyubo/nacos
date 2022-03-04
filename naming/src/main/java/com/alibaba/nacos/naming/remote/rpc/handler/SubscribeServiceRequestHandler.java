@@ -83,6 +83,7 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
     }
     
     /**
+     * 用于适应推送集群功能。
      * For adapt push cluster feature. Will be remove after 2.1.x.
      *
      * @param data       original data

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
+ * Server间GRPC同步
  * Grpc implementation as  a rpc server.
  *
  * @author liuzunfei
@@ -31,7 +32,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class GrpcClusterServer extends BaseGrpcServer {
     
     private static final int PORT_OFFSET = 1001;
-    
+
+    public GrpcClusterServer() {
+        System.out.println("GrpcClusterServer()");
+    }
+
     @Override
     public int rpcPortOffset() {
         return PORT_OFFSET;

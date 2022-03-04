@@ -100,13 +100,16 @@ public class ServiceManager implements RecordListener<Service> {
     private final UdpPushService pushService;
     
     private final RaftPeerSet raftPeerSet;
-    
+
+    //    nacos.naming.empty-service.auto-clean=true
     @Value("${nacos.naming.empty-service.auto-clean:false}")
     private boolean emptyServiceAutoClean;
-    
+
+    //    nacos.naming.empty-service.clean.initial-delay-ms=50000
     @Value("${nacos.naming.empty-service.clean.initial-delay-ms:60000}")
     private int cleanEmptyServiceDelay;
-    
+
+    //    nacos.naming.empty-service.clean.period-time-ms=30000
     @Value("${nacos.naming.empty-service.clean.period-time-ms:20000}")
     private int cleanEmptyServicePeriod;
     
@@ -127,7 +130,8 @@ public class ServiceManager implements RecordListener<Service> {
         GlobalExecutor.scheduleServiceReporter(new ServiceReporter(), 60000, TimeUnit.MILLISECONDS);
         
         GlobalExecutor.submitServiceUpdateManager(new UpdatedServiceProcessor());
-        
+
+        // 自动清理空的 service, 配置文件中默认为true
         if (emptyServiceAutoClean) {
             
             Loggers.SRV_LOG.info("open empty service auto clean job, initialDelay : {} ms, period : {} ms",

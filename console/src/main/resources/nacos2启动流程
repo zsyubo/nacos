@@ -13,7 +13,7 @@ com.alibaba.nacos.core.remote.BaseRpcServer#start
     ServerLoaderInfoRequest -> ServerLoaderInfoRequestHandler
     ServerReloadRequest -> ServerReloaderRequestHandler
     InstanceRequest -> InstanceRequestHandler
-
+    ServerCheckRequest -> SubscribeServiceRequestHandler    client第一次链接
 
 com.alibaba.nacos.naming.cluster.ServerListManager
     上报自身Server状态给集群中的其他Server
@@ -21,7 +21,7 @@ com.alibaba.nacos.naming.cluster.ServerListManager
 JacksonSerializer
     使用Jackson序列化
 
-ServiceManager  存放注册中心的Client Instace
+ServiceManager  存放注册中心的Client Instace，
 
 
 EmptyServiceAutoCleanerV2#doClean  清理注册表中无用的数据，也就是一个服务没有client Instance 且过期了
@@ -51,10 +51,24 @@ DoubleWriteEventListener 双写检查，集群同步的
 
 UpgradeJudgement 不太清楚，里面对一些特性进行判断，，可以使用此类来判断是否启动了GRPC、JRAFT特性
 
+TcpHealthCheckProcessor  TCP请求方式的健康检查处理器，内部使用NIO实现网络通信。
+MysqlHealthCheckProcessor  mysql 健康检查处理器
+HttpHealthCheckProcessor  http方式健康检查处理器
+
+HealthCheckProcessorDelegate 未知
+
+TcpSuperSenseProcessor tcp健康检查的实际逻辑
+
+GlobalExecutor  里面存放了定时任务的执行器，所有定时任务的构造都放在这里面统一实例化、管理
 
 ClientServiceIndexesManager 订阅了多个事件
 NamingMetadataManager 订阅了多个事件
 
+
+MetricsMonitor 监控相关的指标存放
+PerformanceLoggerThread 度量监控以及性能指标监控
+
+UdpPushService UDP通信
 
 ContextRefreshedEvent事件
     com.alibaba.nacos.core.remote.RequestHandlerRegistry#onApplicationEvent

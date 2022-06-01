@@ -87,7 +87,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     
     @Override
     public void startServer() throws Exception {
-        // GRPC的
+        // GRPC的服务注册器
         final MutableHandlerRegistry handlerRegistry = new MutableHandlerRegistry();
 
         // 拦截器

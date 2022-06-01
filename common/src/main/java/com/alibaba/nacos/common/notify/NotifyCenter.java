@@ -201,6 +201,7 @@ public class NotifyCenter {
     public static void registerSubscriber(final Subscriber consumer, final EventPublisherFactory factory) {
         // If you want to listen to multiple events, you do it separately,
         // based on subclass's subscribeTypes method return list, it can register to publisher.
+//订阅多个事件
         //如果你想监听多个事件，你就分开做，基于子类的subscribeTypes方法的返回列表，它可以注册到发布者。
         if (consumer instanceof SmartSubscriber) {
             // 其实就是订阅多个事件
@@ -215,6 +216,8 @@ public class NotifyCenter {
             }
             return;
         }
+
+//订阅单个事件
         // InstancesChangeNotifier---->InstancesChangeEvent.class
         final Class<? extends Event> subscribeType = consumer.subscribeType();
         // 如果是慢事件，特殊处理，注册到INSTANCE.sharePublisher中

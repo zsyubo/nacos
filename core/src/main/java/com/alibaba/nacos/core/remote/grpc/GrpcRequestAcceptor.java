@@ -44,6 +44,8 @@ import java.util.Date;
 import static com.alibaba.nacos.core.remote.grpc.BaseGrpcServer.CONTEXT_KEY_CONN_ID;
 
 /**
+ * rpc请求接受者的grpc。
+ *
  * rpc request accetor of grpc.
  *
  * @author liuzunfei

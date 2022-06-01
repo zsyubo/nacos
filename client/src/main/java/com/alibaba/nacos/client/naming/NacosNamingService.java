@@ -109,7 +109,7 @@ public class NacosNamingService implements NamingService {
         initLogName(properties);
         // 观察者模式
         this.changeNotifier = new InstancesChangeNotifier();
-        // 注册一个发布者？
+        // 注册一个发布者？  注册到INSTANCE.publisherMap
         NotifyCenter.registerToPublisher(InstancesChangeEvent.class, 16384);
         // 注册一个订阅者(消费者)
         NotifyCenter.registerSubscriber(changeNotifier);

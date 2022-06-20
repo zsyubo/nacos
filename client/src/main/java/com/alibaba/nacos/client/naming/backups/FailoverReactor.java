@@ -69,7 +69,8 @@ public class FailoverReactor implements Closeable {
     private static final long DAY_PERIOD_MINUTES = 24 * 60;
     
     private final String failoverDir;
-    
+
+    // 相互持有，没撒特殊含义，只是为了调用代码时方便一点。
     private final ServiceInfoHolder serviceInfoHolder;
     
     private final ScheduledExecutorService executorService;

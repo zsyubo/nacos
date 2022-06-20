@@ -1,1 +1,8 @@
 mvn clean compile package install -Dmaven.test.skip=true  -Drat.skip=true  -Dpmd.skip=true -Dcheckstyle.skip=true
+
+Nacos源码修改后打包发布遇到的问题，Nacos源码打包
+https://blog.csdn.net/loney_wolf/article/details/120769150?spm=1001.2101.3001.6650.7&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-7-120769150-blog-104797864.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-7-120769150-blog-104797864.pc_relevant_aa&utm_relevant_index=9
+
+
+Nacos本地源码启动
+https://wenku.baidu.com/view/a8da2ea3bfeb19e8b8f67c1cfad6195f312be860.html

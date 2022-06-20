@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 请求来建立一个连接。
+ *
  * request to setup a connection.
  *
  * @author liuzunfei

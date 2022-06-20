@@ -70,7 +70,8 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     private final String uuid;
     
     private final Long requestTimeout;
-    
+
+    //  实际GRPC client
     private final RpcClient rpcClient;
     
     private final NamingGrpcRedoService redoService;
@@ -102,9 +103,11 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         // WAIT_INIT->INITIALIZED
         rpcClient.serverListFactory(serverListFactory);
         rpcClient.registerConnectionListener(redoService);
+        //
         rpcClient.registerServerRequestHandler(new NamingPushRequestHandler(serviceInfoHolder));
         // INITIALIZED->STARTING
         rpcClient.start();
+        // 订阅ServerListChangedEvent
         NotifyCenter.registerSubscriber(this);
     }
     

@@ -102,6 +102,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
             return t;
         });
         this.securityProxy.login(serverListManager.getServerList());
+        // 这地方是防止nacos server list发生变更的情况
         this.executorService.scheduleWithFixedDelay(() -> securityProxy.login(serverListManager.getServerList()), 0,
                 securityInfoRefreshIntervalMills, TimeUnit.MILLISECONDS);
     }

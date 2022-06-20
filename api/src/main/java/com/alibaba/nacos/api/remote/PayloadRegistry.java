@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * 有效载荷注册表，包括所有请求和响应。
+ *
  * payload regitry,include all request and response.
  *
  * @author liuzunfei

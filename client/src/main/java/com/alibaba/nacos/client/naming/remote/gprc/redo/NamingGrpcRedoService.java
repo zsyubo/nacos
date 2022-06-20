@@ -35,6 +35,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 命名客户gprc重做服务。
+ * 当连接重新连接到服务器时，重做注册和订阅。
+ *
  * Naming client gprc redo service.
  *
  * <p>When connection reconnect to server, redo the register and subscribe.
@@ -61,6 +64,7 @@ public class NamingGrpcRedoService implements ConnectionEventListener {
     private volatile boolean connected = false;
     
     public NamingGrpcRedoService(NamingGrpcClientProxy clientProxy) {
+        // 创建一个执行器
         this.redoExecutor = new ScheduledThreadPoolExecutor(REDO_THREAD, new NameThreadFactory(REDO_THREAD_NAME));
         // 延时3秒 ，无限循环
         this.redoExecutor.scheduleWithFixedDelay(new RedoScheduledTask(clientProxy, this), DEFAULT_REDO_DELAY,
@@ -150,6 +154,8 @@ public class NamingGrpcRedoService implements ConnectionEventListener {
     }
     
     /**
+     * 找到所有需要重做的实例重做数据。
+     *
      * Find all instance redo data which need do redo.
      *
      * @return set of {@code InstanceRedoData} need to do redo.

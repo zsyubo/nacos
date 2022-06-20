@@ -110,8 +110,8 @@
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-pmd-plugin.version>3.8</maven-pmd-plugin.version>
-        <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
+<!--        <maven-pmd-plugin.version>3.8</maven-pmd-plugin.version>-->
+<!--        <apache-rat-plugin.version>0.12</apache-rat-plugin.version>-->
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
@@ -121,7 +121,7 @@
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-failsafe-plugin.version>2.19.1</maven-failsafe-plugin.version>
         <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
-        <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+<!--        <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>-->
         <maven-flatten-version>1.1.0</maven-flatten-version>
         <!-- dependency version related to plugin -->
         <extra-enforcer-rules.version>1.0-beta-4</extra-enforcer-rules.version>
@@ -253,50 +253,50 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-                <configuration>
-                    <rulesets>
-                        <ruleset>rulesets/java/ali-comment.xml</ruleset>
-                        <ruleset>rulesets/java/ali-concurrent.xml</ruleset>
-                        <ruleset>rulesets/java/ali-constant.xml</ruleset>
-                        <ruleset>rulesets/java/ali-exception.xml</ruleset>
-                        <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
-                        <ruleset>rulesets/java/ali-naming.xml</ruleset>
-                        <ruleset>rulesets/java/ali-oop.xml</ruleset>
-                        <ruleset>rulesets/java/ali-orm.xml</ruleset>
-                        <ruleset>rulesets/java/ali-other.xml</ruleset>
-                        <ruleset>rulesets/java/ali-set.xml</ruleset>
-                    </rulesets>
-                    <printFailingErrors>true</printFailingErrors>
-                    <excludes>
-                        <exclude>**/consistency/entity/*.java</exclude>
-                        <exclude>**/istio/model/mcp/*.java</exclude>
-                        <exclude>**/istio/model/naming/*.java</exclude>
-                        <exclude>**/istio/model/*.java</exclude>
-                        <exclude>**/api/grpc/auto/*.java</exclude>
-                        <exclude>**/istio/mcp/**</exclude>
-                        <exclude>**/istio/networking/**</exclude>
-                        <exclude>**/google/protobuf/**</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.alibaba.p3c</groupId>
-                        <artifactId>p3c-pmd</artifactId>
-                        <version>${p3c-pmd.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-pmd-plugin</artifactId>-->
+<!--                <version>${maven-pmd-plugin.version}</version>-->
+<!--                <configuration>-->
+<!--                    <rulesets>-->
+<!--                        <ruleset>rulesets/java/ali-comment.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-concurrent.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-constant.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-exception.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-naming.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-oop.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-orm.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-other.xml</ruleset>-->
+<!--                        <ruleset>rulesets/java/ali-set.xml</ruleset>-->
+<!--                    </rulesets>-->
+<!--                    <printFailingErrors>true</printFailingErrors>-->
+<!--                    <excludes>-->
+<!--                        <exclude>**/consistency/entity/*.java</exclude>-->
+<!--                        <exclude>**/istio/model/mcp/*.java</exclude>-->
+<!--                        <exclude>**/istio/model/naming/*.java</exclude>-->
+<!--                        <exclude>**/istio/model/*.java</exclude>-->
+<!--                        <exclude>**/api/grpc/auto/*.java</exclude>-->
+<!--                        <exclude>**/istio/mcp/**</exclude>-->
+<!--                        <exclude>**/istio/networking/**</exclude>-->
+<!--                        <exclude>**/google/protobuf/**</exclude>-->
+<!--                    </excludes>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>check</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>com.alibaba.p3c</groupId>-->
+<!--                        <artifactId>p3c-pmd</artifactId>-->
+<!--                        <version>${p3c-pmd.version}</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+<!--            </plugin>-->
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->
 <!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
@@ -319,43 +319,43 @@
 <!--                    </execution>-->
 <!--                </executions>-->
 <!--            </plugin>-->
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <version>${apache-rat-plugin.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>.editorconfig</exclude>
-                        <exclude>.travis.yml</exclude>
-                        <exclude>CONTRIBUTING.md</exclude>
-                        <exclude>CODE_OF_CONDUCT.md</exclude>
-                        <exclude>CHANGELOG.md</exclude>
-                        <exclude>style/codeStyle.md</exclude>
-                        <exclude>REPORTING-BUGS.md</exclude>
-                        <exclude>README.md</exclude>
-                        <exclude>.github/**/*</exclude>
-                        <exclude>doc/*</exclude>
-                        <exclude>derby.log</exclude>
-                        <exclude>logs/*</exclude>
-                        <exclude>src/main/resources/static/**</exclude>
-                        <exclude>**/istio/model/**</exclude>
-                        <exclude>**/consistency/entity/**</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.factories</exclude>
-                        <exclude>/console-ui/**</exclude>
-                        <exclude>**/gogo.proto</exclude>
-                        <exclude>**/any.proto</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.rat</groupId>-->
+<!--                <artifactId>apache-rat-plugin</artifactId>-->
+<!--                <version>${apache-rat-plugin.version}</version>-->
+<!--                <configuration>-->
+<!--                    <excludes>-->
+<!--                        <exclude>.editorconfig</exclude>-->
+<!--                        <exclude>.travis.yml</exclude>-->
+<!--                        <exclude>CONTRIBUTING.md</exclude>-->
+<!--                        <exclude>CODE_OF_CONDUCT.md</exclude>-->
+<!--                        <exclude>CHANGELOG.md</exclude>-->
+<!--                        <exclude>style/codeStyle.md</exclude>-->
+<!--                        <exclude>REPORTING-BUGS.md</exclude>-->
+<!--                        <exclude>README.md</exclude>-->
+<!--                        <exclude>.github/**/*</exclude>-->
+<!--                        <exclude>doc/*</exclude>-->
+<!--                        <exclude>derby.log</exclude>-->
+<!--                        <exclude>logs/*</exclude>-->
+<!--                        <exclude>src/main/resources/static/**</exclude>-->
+<!--                        <exclude>**/istio/model/**</exclude>-->
+<!--                        <exclude>**/consistency/entity/**</exclude>-->
+<!--                        <exclude>**/*.txt</exclude>-->
+<!--                        <exclude>**/*.factories</exclude>-->
+<!--                        <exclude>/console-ui/**</exclude>-->
+<!--                        <exclude>**/gogo.proto</exclude>-->
+<!--                        <exclude>**/any.proto</exclude>-->
+<!--                    </excludes>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>check</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>

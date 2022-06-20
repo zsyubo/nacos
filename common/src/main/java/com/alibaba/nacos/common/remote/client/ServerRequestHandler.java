@@ -20,6 +20,8 @@ import com.alibaba.nacos.api.remote.request.Request;
 import com.alibaba.nacos.api.remote.response.Response;
 
 /**
+ * ServerRequestHandler，用于处理来自服务器端的请求。
+ *
  * ServerRequestHandler, to process the request from server side.
  *
  * @author liuzunfei
@@ -28,6 +30,8 @@ import com.alibaba.nacos.api.remote.response.Response;
 public interface ServerRequestHandler {
     
     /**
+     * 处理来自服务器的请求。
+     *
      * Handle request from server.
      *
      * @param request request

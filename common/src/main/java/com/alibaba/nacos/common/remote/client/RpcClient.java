@@ -898,6 +898,7 @@ public abstract class RpcClient implements Closeable {
         //
         for (ServerRequestHandler serverRequestHandler : serverRequestHandlers) {
             try {
+                // 处理消息
                 // ConnectionSetupRequest
                 //com.alibaba.nacos.common.remote.client.RpcClient.CustomRegisterServerRequestHandler.requestReply  --> ClientDetectionRequest
                 //com.alibaba.nacos.client.naming.remote.gprc.NamingPushRequestHandler.requestReply  --> NotifySubscriberRequest

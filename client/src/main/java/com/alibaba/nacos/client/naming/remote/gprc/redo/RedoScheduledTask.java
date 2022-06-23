@@ -25,6 +25,7 @@ import com.alibaba.nacos.client.utils.LogUtils;
 import com.alibaba.nacos.common.task.AbstractExecuteTask;
 
 /**
+ * 主要是去重试，，可能存在一种特殊情况：  链接服务器成功，但是一直注册失败，这种情况可能下一直去重试着去链接
  * Redo task.
  *
  * @author xiweng.yy
@@ -47,6 +48,7 @@ public class RedoScheduledTask extends AbstractExecuteTask {
             LogUtils.NAMING_LOGGER.warn("Grpc Connection is disconnect, skip current redo task");
             return;
         }
+        // 正常进来是链接状态
         try {
             redoForInstances();
             redoForSubscribes();

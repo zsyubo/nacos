@@ -125,6 +125,7 @@ public class GrpcConnection extends Connection {
     
     public void sendRequest(Request request) {
         Payload convert = GrpcUtils.convert(request);
+        // io.grpc.stub.StreamObserver.onNext
         payloadStreamObserver.onNext(convert);
     }
     

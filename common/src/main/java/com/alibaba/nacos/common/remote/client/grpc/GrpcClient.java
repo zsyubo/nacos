@@ -97,11 +97,15 @@ public abstract class GrpcClient extends RpcClient {
     private RequestGrpc.RequestFutureStub createNewChannelStub(String serverIp, int serverPort) {
         
         ManagedChannelBuilder<?> o = ManagedChannelBuilder.forAddress(serverIp, serverPort).executor(grpcExecutor)
+                // 编码器(数据压缩)
                 .compressorRegistry(CompressorRegistry.getDefaultInstance())
+                // 消息解码器
                 .decompressorRegistry(DecompressorRegistry.getDefaultInstance())
+                // 设置通道上允许接收的最大信息量。如果不调用，默认为4 MiB。nacos设置为10M
                 .maxInboundMessageSize(getInboundMessageSize())
+                // keepAlive事件
                 .keepAliveTime(keepAliveTimeMillis(), TimeUnit.MILLISECONDS).usePlaintext();
-        
+        // 这玩意才是GRPC的
         ManagedChannel managedChannelTemp = o.build();
         
         return RequestGrpc.newFutureStub(managedChannelTemp);
@@ -159,13 +163,15 @@ public abstract class GrpcClient extends RpcClient {
             final GrpcConnection grpcConn) {
         
         return streamStub.requestBiStream(new StreamObserver<Payload>() {
-            
+
+            // 处理数据的
             @Override
             public void onNext(Payload payload) {
                 
                 LoggerUtils.printIfDebugEnabled(LOGGER, "[{}]Stream server request receive, original info: {}",
                         grpcConn.getConnectionId(), payload.toString());
                 try {
+                    // 解析数据
                     Object parseBody = GrpcUtils.parse(payload);
                     // ConnectionSetupRequest
                     final Request request = (Request) parseBody;
@@ -266,7 +272,7 @@ public abstract class GrpcClient extends RpcClient {
             }
             // 获取GRPC的端口
             int port = serverInfo.getServerPort() + rpcPortOffset();
-            // 创建通道
+            // 创建通道，可以理解类似于一个http client
             RequestGrpc.RequestFutureStub newChannelStubTemp = createNewChannelStub(serverInfo.getServerIp(), port);
             if (newChannelStubTemp != null) {
                 // 检查是否联通
@@ -275,9 +281,10 @@ public abstract class GrpcClient extends RpcClient {
                     shuntDownChannel((ManagedChannel) newChannelStubTemp.getChannel());
                     return null;
                 }
-                
+                // 创建一个Grpc的Stream
                 BiRequestStreamGrpc.BiRequestStreamStub biRequestStreamStub = BiRequestStreamGrpc
                         .newStub(newChannelStubTemp.getChannel());
+                // nacos的GRPC 链接
                 GrpcConnection grpcConn = new GrpcConnection(serverInfo, grpcExecutor);
                 grpcConn.setConnectionId(((ServerCheckResponse) response).getConnectionId());
 

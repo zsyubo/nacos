@@ -22,6 +22,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
+ * -Xms512m -Xmx512m -Xmn256m  -Dnacos.standalone=true
  * Nacos starter.
  *
  * @author nacos

@@ -262,6 +262,7 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         SubscribeServiceRequest request = new SubscribeServiceRequest(namespaceId, serviceName, groupName, clusters,
                 false);
         requestToServer(request, SubscribeServiceResponse.class);
+        // 当subscribe成功后就没必要继续redo(重试)了
         redoService.removeSubscriberForRedo(serviceName, groupName, clusters);
     }
     

@@ -196,6 +196,7 @@ public class NamingGrpcRedoService implements ConnectionEventListener {
      */
     public void subscriberRegistered(String serviceName, String groupName, String cluster) {
         String key = ServiceInfo.getKey(NamingUtils.getGroupedName(serviceName, groupName), cluster);
+        // 处理重试相关的  , 标注为已注册
         synchronized (subscribes) {
             SubscriberRedoData redoData = subscribes.get(key);
             if (null != redoData) {

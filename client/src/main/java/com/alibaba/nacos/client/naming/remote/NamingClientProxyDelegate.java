@@ -153,10 +153,14 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
             throws NacosException {
         return grpcClientProxy.getServiceList(pageNo, pageSize, groupName, selector);
     }
-    
+    //serviceName: nacos-reg-service
+    //groupName: DEFAULT_GROUP
+    //clusters: DEFAULT
     @Override
     public ServiceInfo subscribe(String serviceName, String groupName, String clusters) throws NacosException {
+        // DEFAULT_GROUP@@nacos-reg-service
         String serviceNameWithGroup = NamingUtils.getGroupedName(serviceName, groupName);
+        //DEFAULT_GROUP@@nacos-reg-service@@DEFAULT
         String serviceKey = ServiceInfo.getKey(serviceNameWithGroup, clusters);
         //去订阅更新  里面有一个UpdateTask
         serviceInfoUpdateService.scheduleUpdateIfAbsent(serviceName, groupName, clusters);

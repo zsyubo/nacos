@@ -54,7 +54,8 @@ public class ServiceInfoUpdateService implements Closeable {
     private static final long DEFAULT_DELAY = 1000L;
     
     private static final int DEFAULT_UPDATE_CACHE_TIME_MULTIPLE = 6;
-    
+
+    // 任务map
     private final Map<String, ScheduledFuture<?>> futureMap = new HashMap<String, ScheduledFuture<?>>();
     
     private final ServiceInfoHolder serviceInfoHolder;
@@ -95,6 +96,7 @@ public class ServiceInfoUpdateService implements Closeable {
         if (futureMap.get(serviceKey) != null) {
             return;
         }
+        // 直接锁
         synchronized (futureMap) {
             if (futureMap.get(serviceKey) != null) {
                 return;
@@ -177,15 +179,18 @@ public class ServiceInfoUpdateService implements Closeable {
                             .info("update task is stopped, service:" + groupedServiceName + ", clusters:" + clusters);
                     return;
                 }
-                
+
+                // 从Map中取出server信息
                 ServiceInfo serviceObj = serviceInfoHolder.getServiceInfoMap().get(serviceKey);
+                // 空的话，去查
                 if (serviceObj == null) {
                     serviceObj = namingClientProxy.queryInstancesOfService(serviceName, groupName, clusters, 0, false);
                     serviceInfoHolder.processServiceInfo(serviceObj);
                     lastRefTime = serviceObj.getLastRefTime();
                     return;
                 }
-                
+
+                //正常是相同的，也就是同步成功的时间
                 if (serviceObj.getLastRefTime() <= lastRefTime) {
                     serviceObj = namingClientProxy.queryInstancesOfService(serviceName, groupName, clusters, 0, false);
                     serviceInfoHolder.processServiceInfo(serviceObj);
@@ -195,19 +200,28 @@ public class ServiceInfoUpdateService implements Closeable {
                     incFailCount();
                     return;
                 }
-                // TODO multiple time can be configured.
+                // serviceObj.getCacheMillis() 也就是服务端可以控制client缓存时间？
+                // TODO multiple time can be configured.    默认6秒
                 delayTime = serviceObj.getCacheMillis() * DEFAULT_UPDATE_CACHE_TIME_MULTIPLE;
+                // 重置失败计数
                 resetFailCount();
             } catch (Throwable e) {
                 incFailCount();
                 NAMING_LOGGER.warn("[NA] failed to update serviceName: " + groupedServiceName, e);
             } finally {
-                // 去发起下一次更新,如果更新正常，那么下一次处罚时间为60s
+                // 去发起下一次更新,如果更新正常，那么下一次触发时间为60s
                 executor.schedule(this, Math.min(delayTime << failCount, DEFAULT_DELAY * 60), TimeUnit.MILLISECONDS);
+                // delayTime << failCount  如果失败了，就指数级时间重试
             }
         }
     
         private void incFailCount() {
+            //2
+            //4
+            //8
+            //16
+            //32
+            //64
             int limit = 6;
             if (failCount == limit) {
                 return;

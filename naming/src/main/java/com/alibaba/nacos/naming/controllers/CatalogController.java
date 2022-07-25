@@ -155,6 +155,7 @@ public class CatalogController {
             //CatalogServiceV2Impl#pageListServiceDetail
             return judgeCatalogService().pageListServiceDetail(namespaceId, groupName, serviceName, pageNo, pageSize);
         }
+        // 使用GRPC是CatalogServiceV2Impl
         return judgeCatalogService()
                 .pageListService(namespaceId, groupName, serviceName, pageNo, pageSize, containedInstance, hasIpCount);
     }

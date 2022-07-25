@@ -114,6 +114,8 @@ public class NamingUtils {
     }
     
     /**
+     * 检查关于保持活力的实例参数。
+     *
      * <p>Check instance param about keep alive.</p>
      *
      * <pre>

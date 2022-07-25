@@ -106,19 +106,20 @@ public class FailoverReactor implements Closeable {
         //首次延迟30分钟，一天执行一次，备份到磁盘
         executorService.scheduleWithFixedDelay(new DiskFileWriter(), 30, DAY_PERIOD_MINUTES, TimeUnit.MINUTES);
 
-        // 10秒执行一次  去检查磁盘缓存是否还存在
+        // 延时10秒执行一次  去检查磁盘缓存是否还存在(一次性)
         // backup file on startup if failover directory is empty.
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
                     File cacheDir = new File(failoverDir);
-
+                    //如果缓存目录不存在
                     if (!cacheDir.exists() && !cacheDir.mkdirs()) {
                         throw new IllegalStateException("failed to create cache dir: " + failoverDir);
                     }
                     
                     File[] files = cacheDir.listFiles();
+                    // 如果缓存文件不存在，则去手动执行缓存
                     if (files == null || files.length <= 0) {
                         new DiskFileWriter().run();
                     }

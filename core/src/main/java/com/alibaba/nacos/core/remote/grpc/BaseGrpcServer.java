@@ -106,8 +106,10 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                 .addTransportFilter(new ServerTransportFilter() {
                     @Override
                     public Attributes transportReady(Attributes transportAttrs) {
+                        //远程地址
                         InetSocketAddress remoteAddress = (InetSocketAddress) transportAttrs
                                 .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                        // 本地地址
                         InetSocketAddress localAddress = (InetSocketAddress) transportAttrs
                                 .get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR);
                         int remotePort = remoteAddress.getPort();
@@ -193,6 +195,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                     grpcCommonRequestAcceptor.request(request, responseObserver);
                 });
         //构造服务
+
         final ServerServiceDefinition serviceDefOfUnaryPayload = ServerServiceDefinition.builder(REQUEST_SERVICE_NAME)
                 .addMethod(unaryPayloadMethod, payloadHandler).build();
         //服务注册到grpc中

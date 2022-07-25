@@ -55,7 +55,7 @@ public class ServiceInfo {
     
     private long cacheMillis = 1000L;
 
-    // 实例列表
+    // 当前服务的所有实例列表
     private List<Instance> hosts = new ArrayList<Instance>();
 
     // 最后从server拉取时间

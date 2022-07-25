@@ -30,6 +30,7 @@ import static com.alibaba.nacos.api.common.Constants.NUMBER_PATTERN;
 
 /**
  * Instance.
+ * client实例信息
  *
  * @author nkorange
  */

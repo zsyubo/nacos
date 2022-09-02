@@ -67,8 +67,10 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
      */
     private void traceIfNecessary(Payload grpcRequest, boolean receive) {
         String clientIp = grpcRequest.getMetadata().getClientIp();
+        // 从上下文中获取
         String connectionId = CONTEXT_KEY_CONN_ID.get();
         try {
+            // 判断是否是限流的
             if (connectionManager.traced(clientIp)) {
                 Loggers.REMOTE_DIGEST.info("[{}]Payload {},meta={},body={}", connectionId, receive ? "receive" : "send",
                         grpcRequest.getMetadata().toByteString().toStringUtf8(),
@@ -130,6 +132,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         String connectionId = CONTEXT_KEY_CONN_ID.get();
         boolean requestValid = connectionManager.checkValid(connectionId);
         if (!requestValid) {
+            // 说明当前连接应该已经断开了
             Loggers.REMOTE_DIGEST
                     .warn("[{}] Invalid connection Id ,connection [{}] is un registered ,", "grpc", connectionId);
             Payload payloadResponse = GrpcUtils
@@ -142,6 +145,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         
         Object parseObj = null;
         try {
+            // GRPC解析数据
             parseObj = GrpcUtils.parse(grpcRequest);
         } catch (Exception e) {
             Loggers.REMOTE_DIGEST
@@ -152,7 +156,8 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
             responseObserver.onCompleted();
             return;
         }
-        
+
+        // 如果解析不成功
         if (parseObj == null) {
             Loggers.REMOTE_DIGEST.warn("[{}] Invalid request receive  ,parse request is null", connectionId);
             Payload payloadResponse = GrpcUtils

@@ -246,6 +246,7 @@ public class ServiceUtil {
     }
     
     /**
+     * 选择具有正常保护的服务信息实例。
      * Select instance of service info with healthy protection.
      *
      * @param serviceInfo     original service info
@@ -299,7 +300,10 @@ public class ServiceUtil {
             if (threshold < 0) {
                 threshold = 0F;
             }
+            // 没想到nacos也有保护措施
+            // 存活数量/总实列数量
             if ((float) healthyCount / allInstances.size() <= threshold) {
+                // 触发了保护措施？将所有实例都设置为正常状态？
                 Loggers.SRV_LOG.warn("protect threshold reached, return all ips, service: {}", filteredResult.getName());
                 filteredResult.setReachProtectionThreshold(true);
                 List<com.alibaba.nacos.api.naming.pojo.Instance> filteredInstances = allInstances.stream()

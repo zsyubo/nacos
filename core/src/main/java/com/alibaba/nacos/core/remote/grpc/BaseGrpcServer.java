@@ -99,11 +99,16 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         //BaseGrpcServer.CustomServerInterceptor
         addServices(handlerRegistry, serverInterceptor);
         //构造grpc服务端
-        server = ServerBuilder.forPort(getServicePort()).executor(getRpcExecutor())
-                .maxInboundMessageSize(getInboundMessageSize()).fallbackHandlerRegistry(handlerRegistry)
-                .compressorRegistry(CompressorRegistry.getDefaultInstance())
-                .decompressorRegistry(DecompressorRegistry.getDefaultInstance())
+        server = ServerBuilder.forPort(getServicePort())
+                // getRpcExecutor： 线程池
+                .executor(getRpcExecutor())
+                .maxInboundMessageSize(getInboundMessageSize())
+                .fallbackHandlerRegistry(handlerRegistry)
+                .compressorRegistry(CompressorRegistry.getDefaultInstance())  // 压缩配置
+                .decompressorRegistry(DecompressorRegistry.getDefaultInstance())  // 解压配置
                 .addTransportFilter(new ServerTransportFilter() {
+                    //用于创建和删除服务器传输的筛选机制
+                    // 也就是连接和关闭连接时的过滤器
                     @Override
                     public Attributes transportReady(Attributes transportAttrs) {
                         //远程地址
@@ -117,7 +122,9 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                         String remoteIp = remoteAddress.getAddress().getHostAddress();
                         // 这地方当有新的请求进来时，去自动生成对应的key
                         Attributes attrWrapper = transportAttrs.toBuilder()
+                                // 初始哈conn_id
                                 .set(TRANS_KEY_CONN_ID, System.currentTimeMillis() + "_" + remoteIp + "_" + remotePort)
+                                //
                                 .set(TRANS_KEY_REMOTE_IP, remoteIp).set(TRANS_KEY_REMOTE_PORT, remotePort)
                                 .set(TRANS_KEY_LOCAL_PORT, localPort).build();
                         String connectionId = attrWrapper.get(TRANS_KEY_CONN_ID);
@@ -130,6 +137,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                     public void transportTerminated(Attributes transportAttrs) {
                         String connectionId = null;
                         try {
+                            // 获取conn_id
                             connectionId = transportAttrs.get(TRANS_KEY_CONN_ID);
                         } catch (Exception e) {
                             // Ignore
@@ -137,6 +145,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                         if (StringUtils.isNotBlank(connectionId)) {
                             Loggers.REMOTE_DIGEST
                                     .info("Connection transportTerminated,connectionId = {} ", connectionId);
+                            // todo 从connectionManager取消conn_id
                             connectionManager.unregister(connectionId);
                         }
                     }
@@ -188,7 +197,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                 .setFullMethodName(MethodDescriptor.generateFullMethodName(REQUEST_SERVICE_NAME, REQUEST_METHOD_NAME))
                 .setRequestMarshaller(ProtoUtils.marshaller(Payload.getDefaultInstance()))
                 .setResponseMarshaller(ProtoUtils.marshaller(Payload.getDefaultInstance())).build();
-        //服务回调（客户端注册时，这里方法会接收到）
+        //服务回调（客户端注册时，这里方法会接收到）  路由处理
         final ServerCallHandler<Payload, Payload> payloadHandler = ServerCalls
                 .asyncUnaryCall((request, responseObserver) -> {
                     //服务回调（客户端注册时，这里方法会接收到）

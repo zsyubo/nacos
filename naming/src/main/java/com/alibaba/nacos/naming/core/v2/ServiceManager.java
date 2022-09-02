@@ -51,6 +51,7 @@ public class ServiceManager {
     }
     
     /**
+     * 得到单服务。如果没有单例，就交给经理。
      * Get singleton service. Put to manager if no singleton.
      *
      * @param service new service

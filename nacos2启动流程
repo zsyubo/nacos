@@ -7,13 +7,21 @@ com.alibaba.nacos.core.remote.BaseRpcServer#start
     ConfigQueryRequest -> ConfigQueryRequestHandler
     DistroDataRequest -> DistroDataRequestHandler
     SubscribeServiceRequest -> SubscribeServiceRequestHandler
+                1661935982300_127.0.0.1_51664::request:{"subscribe":true,"clusters":"DEFAULT","namespace":"public","serviceName":"shop-user-service","groupName":"DEFAULT_GROUP","headers":{"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYWNvcyIsImV4cCI6MTY2MTk1Mzk4Mn0.5GLWC9lZQmPuH4rYr3tD5-Qk57EC4LsYw9-gRe-ZQjE","app":"unknown"}}
+                1661935982300_127.0.0.1_51664::meta:{"connectionId":"1661935982300_127.0.0.1_51664","clientIp":"192.168.137.1","clientVersion":"Nacos-Java-Client:v2.0.3","labels":{"module":"naming","source":"sdk"}}
+                1661935982300_127.0.0.1_51664::response:{"jsonFromServer":"","name":"shop-user-service","groupName":"DEFAULT_GROUP","clusters":"DEFAULT","cacheMillis":10000,"hosts":[],"lastRefTime":1661935982412,"checksum":"","allIPs":false,"reachProtectionThreshold":false}
     ConfigRemoveRequest -> ConfigRemoveRequestHandler
-    ServiceQueryRequest -> ServiceQueryRequestHandler
+    ServiceQueryRequest -> ServiceQueryRequestHandler   拉取client实例列表
+                1661933990443_127.0.0.1_49287::request:{"cluster":"DEFAULT","healthyOnly":false,"udpPort":0,"namespace":"public","serviceName":"shop-user-service","groupName":"DEFAULT_GROUP","headers":{"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYWNvcyIsImV4cCI6MTY2MTk1MTgyN30.W1G0wbEl6gICECb3laWG4nmpr6ApOsNg6eKZP6duiV4","app":"unknown"}}
+                1661933990443_127.0.0.1_49287::meta:{"connectionId":"1661933990443_127.0.0.1_49287","clientIp":"192.168.137.1","clientVersion":"Nacos-Java-Client:v2.0.3","labels":{"module":"naming","source":"sdk"}}
+                1661933990443_127.0.0.1_49287::response:{"serviceInfo":{"jsonFromServer":"","name":"shop-user-service","groupName":"DEFAULT_GROUP","clusters":"DEFAULT","cacheMillis":10000,"hosts":[{"ip":"192.168.137.1","port":9001,"weight":1,"healthy":true,"enabled":true,"ephemeral":true,"clusterName":"DEFAULT","serviceName":"DEFAULT_GROUP@@shop-user-service","metadata":{"preserved.register.source":"SPRING_CLOUD"}}],"lastRefTime":1661934009255,"checksum":"","allIPs":false,"reachProtectionThreshold":false},"resultCode":200,"errorCode":0}
     HealthCheckRequest -> HealthCheckRequestHandler
     ServerLoaderInfoRequest -> ServerLoaderInfoRequestHandler
     ServerReloadRequest -> ServerReloaderRequestHandler
     InstanceRequest -> InstanceRequestHandler
-    ServerCheckRequest -> SubscribeServiceRequestHandler    client第一次链接
+                1661935982300_127.0.0.1_51664::request:{"type":"registerInstance","instance":{"ip":"192.168.137.1","port":9001,"weight":1,"healthy":true,"enabled":true,"ephemeral":true,"clusterName":"DEFAULT","metadata":{"preserved.register.source":"SPRING_CLOUD"}},"namespace":"public","serviceName":"shop-user-service","groupName":"DEFAULT_GROUP","headers":{"accessToken":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYWNvcyIsImV4cCI6MTY2MTk1Mzk4Mn0.5GLWC9lZQmPuH4rYr3tD5-Qk57EC4LsYw9-gRe-ZQjE","app":"unknown"}}
+                1661935982300_127.0.0.1_51664::meta:{"connectionId":"1661935982300_127.0.0.1_51664","clientIp":"192.168.137.1","clientVersion":"Nacos-Java-Client:v2.0.3","labels":{"module":"naming","source":"sdk"}}
+    ServerCheckRequest -> com.alibaba.nacos.core.remote.grpc.GrpcRequestAcceptor.request里面就处理了    client第一次链接
 
 com.alibaba.nacos.naming.cluster.ServerListManager
     上报自身Server状态给集群中的其他Server
@@ -73,3 +81,9 @@ UdpPushService UDP通信
 ContextRefreshedEvent事件
     com.alibaba.nacos.core.remote.RequestHandlerRegistry#onApplicationEvent
 
+
+ConnectionManager#connectionLimitRule  限流规则
+ConnectionManager.initLimitRue 初始化限流规则
+
+
+RequestHandlerRegistry: 初始化RequestHandler注册器

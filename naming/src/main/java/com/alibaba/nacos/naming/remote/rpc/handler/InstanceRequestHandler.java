@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.naming.remote.rpc.handler;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.remote.NamingRemoteConstants;
 import com.alibaba.nacos.api.naming.remote.request.InstanceRequest;
@@ -46,9 +47,14 @@ public class InstanceRequestHandler extends RequestHandler<InstanceRequest, Inst
     @Override
     @Secured(action = ActionTypes.WRITE, parser = NamingResourceParser.class)
     public InstanceResponse handle(InstanceRequest request, RequestMeta meta) throws NacosException {
+        String cId = meta.getConnectionId();
+        System.out.println(cId+"::InstanceRequestHandler-->request:"+ JSONUtil.toJsonStr(request));
+        System.out.println(cId+"::InstanceRequestHandler-->meta:"+ JSONUtil.toJsonStr(meta));
+        // 创建一个service
         Service service = Service
                 .newService(request.getNamespace(), request.getGroupName(), request.getServiceName(), true);
         switch (request.getType()) {
+            // 注册
             case NamingRemoteConstants.REGISTER_INSTANCE:
                 return registerInstance(service, request, meta);
             case NamingRemoteConstants.DE_REGISTER_INSTANCE:

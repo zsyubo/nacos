@@ -53,7 +53,8 @@ public class ServiceStorage {
     private final SwitchDomain switchDomain;
     
     private final NamingMetadataManager metadataManager;
-    
+
+    // 存放了所有
     private final ConcurrentMap<Service, ServiceInfo> serviceDataIndexes;
     
     private final ConcurrentMap<Service, Set<String>> serviceClusterIndex;
@@ -75,8 +76,14 @@ public class ServiceStorage {
     public ServiceInfo getData(Service service) {
         return serviceDataIndexes.containsKey(service) ? serviceDataIndexes.get(service) : getPushData(service);
     }
-    
+
+    /**
+     *  初始化
+     * @param service
+     * @return
+     */
     public ServiceInfo getPushData(Service service) {
+        // 初始化一个ServiceInfo
         ServiceInfo result = emptyServiceInfo(service);
         if (!ServiceManager.getInstance().containSingleton(service)) {
             return result;
@@ -104,8 +111,10 @@ public class ServiceStorage {
         Set<Instance> result = new HashSet<>();
         Set<String> clusters = new HashSet<>();
         for (String each : serviceIndexesManager.getAllClientsRegisteredService(service)) {
+            // 获取InstancePublishInfo
             Optional<InstancePublishInfo> instancePublishInfo = getInstanceInfo(each, service);
             if (instancePublishInfo.isPresent()) {
+                // 把InstancePublishInfo转化我Instance
                 Instance instance = parseInstance(service, instancePublishInfo.get());
                 result.add(instance);
                 clusters.add(instance.getClusterName());

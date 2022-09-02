@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.naming.remote.rpc.handler;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.api.naming.remote.request.ServiceQueryRequest;
@@ -53,6 +54,10 @@ public class ServiceQueryRequestHandler extends RequestHandler<ServiceQueryReque
     @Override
     @Secured(action = ActionTypes.READ, parser = NamingResourceParser.class)
     public QueryServiceResponse handle(ServiceQueryRequest request, RequestMeta meta) throws NacosException {
+        String cId = meta.getConnectionId();
+        System.out.println(cId+"::ServiceQueryRequestHandler-->request:"+ JSONUtil.toJsonStr(request));
+        System.out.println(cId+"::ServiceQueryRequestHandler-->meta:"+ JSONUtil.toJsonStr(meta));
+
         String namespaceId = request.getNamespace();
         String groupName = request.getGroupName();
         String serviceName = request.getServiceName();
@@ -60,8 +65,12 @@ public class ServiceQueryRequestHandler extends RequestHandler<ServiceQueryReque
         String cluster = null == request.getCluster() ? "" : request.getCluster();
         boolean healthyOnly = request.isHealthyOnly();
         ServiceInfo result = serviceStorage.getData(service);
+        // 一般为空
         ServiceMetadata serviceMetadata = metadataManager.getServiceMetadata(service).orElse(null);
         result = ServiceUtil.selectInstancesWithHealthyProtection(result, serviceMetadata, cluster, healthyOnly, true);
-        return QueryServiceResponse.buildSuccessResponse(result);
+
+        QueryServiceResponse response = QueryServiceResponse.buildSuccessResponse(result);
+        System.out.println(cId+"::ServiceQueryRequestHandler-->response:"+ JSONUtil.toJsonStr(response));
+        return response;
     }
 }

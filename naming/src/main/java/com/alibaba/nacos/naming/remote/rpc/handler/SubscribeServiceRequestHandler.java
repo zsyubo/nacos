@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.naming.remote.rpc.handler;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.api.naming.remote.request.SubscribeServiceRequest;
@@ -38,6 +39,7 @@ import com.alibaba.nacos.naming.web.NamingResourceParser;
 import org.springframework.stereotype.Component;
 
 /**
+ * 处理订阅请求，其实就是去拉去对应存储在server中的集群数据
  * Handler to handle subscribe service.
  *
  * @author liuzunfei
@@ -63,6 +65,10 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
     @Override
     @Secured(action = ActionTypes.READ, parser = NamingResourceParser.class)
     public SubscribeServiceResponse handle(SubscribeServiceRequest request, RequestMeta meta) throws NacosException {
+        String cId = meta.getConnectionId();
+        System.out.println(cId+"::SubscribeServiceRequestHandler-->request:"+ JSONUtil.toJsonStr(request));
+        System.out.println(cId+"::SubscribeServiceRequestHandler-->meta:"+ JSONUtil.toJsonStr(meta));
+
         String namespaceId = request.getNamespace();
         String serviceName = request.getServiceName();
         String groupName = request.getGroupName();
@@ -79,6 +85,7 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
         } else {
             clientOperationService.unsubscribeService(service, subscriber, meta.getConnectionId());
         }
+        System.out.println(cId+"::SubscribeServiceRequestHandler-->response:"+ JSONUtil.toJsonStr(serviceInfo));
         return new SubscribeServiceResponse(ResponseCode.SUCCESS.getCode(), "success", serviceInfo);
     }
     

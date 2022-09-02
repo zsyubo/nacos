@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.naming.core.v2.metadata;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.common.notify.Event;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.notify.listener.SmartSubscriber;
@@ -36,6 +37,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 统一的元数据管理器 管理服务元数据 实例元数据 过期元数据信息
+ * todo 目前看是JRaft中使用
+ *
  * Nacos naming metadata manager.
  *
  * @author xiweng.yy
@@ -88,6 +92,7 @@ public class NamingMetadataManager extends SmartSubscriber {
      * @return service metadata
      */
     public Optional<ServiceMetadata> getServiceMetadata(Service service) {
+        System.out.println("serviceMetadataMap:"+ JSONUtil.toJsonStr(serviceMetadataMap));
         return Optional.ofNullable(serviceMetadataMap.get(service));
     }
     
@@ -182,6 +187,9 @@ public class NamingMetadataManager extends SmartSubscriber {
     }
     
     /**
+     * 加载服务元数据快照。
+     * 服务元数据需要重新加载服务。
+     *
      * Load service metadata snapshot.
      *
      * <p>Service metadata need load back the service.

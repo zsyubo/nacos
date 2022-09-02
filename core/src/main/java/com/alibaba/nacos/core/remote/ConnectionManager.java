@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ *  链接管理器
  * connect manager.
  *
  * @author liuzunfei
@@ -79,6 +80,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
     private static final long KEEP_ALIVE_TIME = 20000L;
     
     /**
+     *  连接限流管理
      * connection limit rule.
      */
     private ConnectionLimitRule connectionLimitRule = new ConnectionLimitRule();
@@ -91,7 +93,10 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
     String redirectAddress = null;
     
     private Map<String, AtomicInteger> connectionForClientIp = new ConcurrentHashMap<String, AtomicInteger>(16);
-    
+
+    /**
+     * 存放当前的GPRC连接
+     */
     Map<String, Connection> connections = new ConcurrentHashMap<String, Connection>();
     
     @Autowired
@@ -112,7 +117,10 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
         return connectionLimitRule != null && connectionLimitRule.getMonitorIpList() != null && connectionLimitRule
                 .getMonitorIpList().contains(clientIp);
     }
-    
+
+    /**
+     * 初始化限流规则器
+     */
     @PostConstruct
     protected void initLimitRue() {
         try {
@@ -229,6 +237,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
             }
             remove.close();
             Loggers.REMOTE_DIGEST.info("[{}]Connection unregistered successfully. ", connectionId);
+            // 异步关闭client连接
             clientConnectionEventListenerRegistry.notifyClientDisConnected(remove);
         }
     }

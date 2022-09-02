@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.common.notify;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.nacos.api.exception.runtime.NacosRuntimeException;
 import com.alibaba.nacos.common.JustForTest;
 import com.alibaba.nacos.common.notify.listener.SmartSubscriber;
@@ -242,7 +243,10 @@ public class NotifyCenter {
         //  consumer:  InstancesChangeNotifier
         //  subscribeType: InstancesChangeEvent.class
         //  factory: NotifyCenter.DEFAULT_PUBLISHER_FACTORY
-
+        if(consumer != null && consumer.subscribeType() != null ){
+            System.out.println(consumer.getClass().getSimpleName()+"-->"+consumer.subscribeType().getSimpleName());
+        }
+        System.out.println("subscribeType:"+subscribeType.getSimpleName());
         final String topic = ClassUtils.getCanonicalName(subscribeType);
         synchronized (NotifyCenter.class) {
             // MapUtils.computeIfAbsent is a unsafe method.
@@ -335,7 +339,17 @@ public class NotifyCenter {
         }
         
         final String topic = ClassUtils.getCanonicalName(eventType);
-        
+        //server: ["com.alibaba.nacos.config.server.model.event.ConfigDataChangeEvent","com.alibaba.nacos.naming.core.v2.event.client.ClientEvent.ClientChangedEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent.ClientRegisterServiceEvent","com.alibaba.nacos.naming.consistency.ValueChangeEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent.ClientDeregisterServiceEvent","com.alibaba.nacos.naming.core.v2.event.client.ClientEvent.ClientVerifyFailedEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent.ClientSubscribeServiceEvent","com.alibaba.nacos.core.cluster.MembersChangeEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.service.ServiceEvent.ServiceChangedEvent","com.alibaba.nacos.core.remote.control.TpsControlRuleChangeEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent.ClientUnsubscribeServiceEvent","com.alibaba.nacos.core.remote.event.ConnectionLimitRuleChangeEvent"
+        // ,"com.alibaba.nacos.config.server.model.event.LocalDataChangeEvent","com.alibaba.nacos.naming.core.v2.event.client.ClientEvent.ClientDisconnectEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.service.ServiceEvent.ServiceSubscribedEvent","com.alibaba.nacos.naming.core.v2.upgrade.UpgradeStates.UpgradeStateChangedEvent"
+        // ,"com.alibaba.nacos.naming.core.v2.event.metadata.MetadataEvent.InstanceMetadataEvent","com.alibaba.nacos.naming.core.v2.event.metadata.MetadataEvent.ServiceMetadataEvent"
+        // ,"com.alibaba.nacos.common.event.ServerConfigChangeEvent"]
+        System.out.println("publishEvent:"+ JSONUtil.toJsonStr(INSTANCE.publisherMap.keySet()));
         EventPublisher publisher = INSTANCE.publisherMap.get(topic);
         if (publisher != null) {
             return publisher.publish(event);
@@ -388,6 +402,7 @@ public class NotifyCenter {
         }
         //获取完整的ClassName: com.alibaba.nacos.client.naming.event.InstancesChangeEvent
         final String topic = ClassUtils.getCanonicalName(eventType);
+        System.out.println("registerToPublisher::"+eventType.getSimpleName());
         synchronized (NotifyCenter.class) {
             // MapUtils.computeIfAbsent is a unsafe method.
             // Map<K, V> target, key, mappingFunction, C param1,  T param2

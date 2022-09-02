@@ -48,6 +48,7 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     
     @Override
     public void registerInstance(Service service, Instance instance, String clientId) {
+        // getSingleton里面包含了注册的逻辑
         Service singleton = ServiceManager.getInstance().getSingleton(service);
         Client client = clientManager.getClient(clientId);
         if (!clientIsLegal(client, clientId)) {
@@ -110,6 +111,7 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
             Loggers.SRV_LOG.warn("Client connection {} already disconnect", clientId);
             return false;
         }
+        // 是否是临时节点
         if (!client.isEphemeral()) {
             Loggers.SRV_LOG.warn("Client connection {} type is not ephemeral", clientId);
             return false;

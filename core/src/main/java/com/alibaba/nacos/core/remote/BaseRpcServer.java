@@ -39,6 +39,7 @@ public abstract class BaseRpcServer {
     
     /**
      * Start sever.
+     * PostConstruct 启动时执行
      */
     @PostConstruct
     public void start() throws Exception {

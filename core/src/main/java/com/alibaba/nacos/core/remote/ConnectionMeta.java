@@ -214,6 +214,7 @@ public class ConnectionMeta {
     }
     
     /**
+     * 最后获取时间
      * Setter method for property <tt>lastActiveTime</tt>.
      *
      * @param lastActiveTime value to be assigned to property lastActiveTime

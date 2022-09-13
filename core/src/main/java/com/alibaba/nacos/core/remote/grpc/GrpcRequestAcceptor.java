@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.core.remote.grpc;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.grpc.auto.Payload;
 import com.alibaba.nacos.api.grpc.auto.RequestGrpc;
@@ -42,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.alibaba.nacos.core.remote.grpc.BaseGrpcServer.CONTEXT_KEY_CONN_ID;
+import static com.alibaba.nacos.core.remote.grpc.BaseGrpcServer.TRAD_ID;
 
 /**
  * rpc请求接受者的grpc。
@@ -91,7 +94,10 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String stationTime = dateFormat.format(new Date());
-        System.out.println("time:"+stationTime+";;type:"+type);
+        if(ObjectUtil.notEqual(type,"HealthCheckRequest")){
+            System.out.println(TRAD_ID.get()+"time:"+stationTime+";;type:"+type);
+        }
+
         //sever是否已启动，主要是，服务还在启动中的情况, 让客户端稍后在重试
         //server is on starting.
         if (!ApplicationUtils.isStarted()) {
@@ -99,6 +105,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
                     buildErrorResponse(NacosException.INVALID_SERVER_STATUS, "Server is starting,please try later."));
             //黑名单校验？
             traceIfNecessary(payloadResponse, false);
+            // 后置处理
             responseObserver.onNext(payloadResponse);
             
             responseObserver.onCompleted();
@@ -189,6 +196,9 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
             requestMeta.setLabels(connection.getMetaInfo().getLabels());
             // 刷新链接时间
             connectionManager.refreshActiveTime(requestMeta.getConnectionId());
+            if(ObjectUtil.notEqual(type,"HealthCheckRequest")) {
+                System.out.println(StrUtil.format("type:{};requestHandler:{}", type, requestHandler.getClass().getSimpleName()));
+            }
             Response response = requestHandler.handleRequest(request, requestMeta);
             Payload payloadResponse = GrpcUtils.convert(response);
             traceIfNecessary(payloadResponse, false);

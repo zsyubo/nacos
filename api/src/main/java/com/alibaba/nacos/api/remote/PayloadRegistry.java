@@ -62,7 +62,10 @@ public class PayloadRegistry {
             Reflections reflections = new Reflections(pkg);
             Set<Class<? extends Request>> subTypesRequest = reflections.getSubTypesOf(Request.class);
             for (Class clazz : subTypesRequest) {
-                System.out.println("request: "+clazz.getSimpleName()+":"+clazz.getName());
+                String config = System.getProperty("println.scanLog");
+                if(config != null && config.equals("true") ) {
+                    System.out.println("request: " + clazz.getSimpleName() + ":" + clazz.getName());
+                }
                 register(clazz.getSimpleName(), clazz);
             }
         }
@@ -103,7 +106,11 @@ public class PayloadRegistry {
             Reflections reflections = new Reflections(pkg);
             Set<Class<? extends Response>> subTypesOfResponse = reflections.getSubTypesOf(Response.class);
             for (Class clazz : subTypesOfResponse) {
-                System.out.println("response: "+clazz.getSimpleName()+":"+clazz.getName());
+                String config = System.getProperty("println.initLog");
+                if(config!=null && config.equals("true") ){
+                    System.out.println("response: "+clazz.getSimpleName()+":"+clazz.getName());
+                }
+
                 register(clazz.getSimpleName(), clazz);
             }
         }

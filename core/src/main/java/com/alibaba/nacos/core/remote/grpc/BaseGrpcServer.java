@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.core.remote.grpc;
 
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.nacos.api.grpc.auto.Payload;
 import com.alibaba.nacos.common.remote.ConnectionType;
 import com.alibaba.nacos.common.utils.ReflectUtils;
@@ -87,6 +88,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     
     @Override
     public void startServer() throws Exception {
+
         // GRPC的服务注册器
         final MutableHandlerRegistry handlerRegistry = new MutableHandlerRegistry();
 
@@ -102,6 +104,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         server = ServerBuilder.forPort(getServicePort())
                 // getRpcExecutor： 线程池
                 .executor(getRpcExecutor())
+                // 设置最大消息为10M
                 .maxInboundMessageSize(getInboundMessageSize())
                 .fallbackHandlerRegistry(handlerRegistry)
                 .compressorRegistry(CompressorRegistry.getDefaultInstance())  // 压缩配置
@@ -111,6 +114,8 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
                     // 也就是连接和关闭连接时的过滤器
                     @Override
                     public Attributes transportReady(Attributes transportAttrs) {
+                        // 第一次建立连接时会进来
+                        System.out.println("1.连接建立了");
                         //远程地址
                         InetSocketAddress remoteAddress = (InetSocketAddress) transportAttrs
                                 .get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
@@ -161,11 +166,14 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         @Override
         public <T, S> ServerCall.Listener<T> interceptCall(ServerCall<T, S> call, Metadata headers,
                 ServerCallHandler<T, S> next) {
+            // 每次调用都会进来
+//            System.out.println("2.来了来了");
             Context ctx = Context.current()
                     .withValue(CONTEXT_KEY_CONN_ID, call.getAttributes().get(TRANS_KEY_CONN_ID))
                     .withValue(CONTEXT_KEY_CONN_REMOTE_IP, call.getAttributes().get(TRANS_KEY_REMOTE_IP))
                     .withValue(CONTEXT_KEY_CONN_REMOTE_PORT, call.getAttributes().get(TRANS_KEY_REMOTE_PORT))
                     .withValue(CONTEXT_KEY_CONN_LOCAL_PORT, call.getAttributes().get(TRANS_KEY_LOCAL_PORT));
+            ctx = ctx.withValue(TRAD_ID, IdUtil.fastSimpleUUID());
             if (REQUEST_BI_STREAM_SERVICE_NAME.equals(call.getMethodDescriptor().getServiceName())) {
                 Channel internalChannel = getInternalChannel(call);
                 ctx = ctx.withValue(CONTEXT_KEY_CHANNEL, internalChannel);
@@ -261,5 +269,6 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     static final Context.Key<Integer> CONTEXT_KEY_CONN_LOCAL_PORT = Context.key("local_port");
     
     static final Context.Key<Channel> CONTEXT_KEY_CHANNEL = Context.key("ctx_channel");
-    
+
+    static final Context.Key<String> TRAD_ID = Context.key("trad_id");
 }

@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.core.remote;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.nacos.api.remote.request.Request;
 import com.alibaba.nacos.api.remote.request.RequestMeta;
 import com.alibaba.nacos.core.remote.control.TpsControl;
@@ -89,7 +90,10 @@ public class RequestHandlerRegistry implements ApplicationListener<ContextRefres
                 //ignore.
             }
             Class tClass = (Class) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
-            System.out.println("tClass.getSimpleName():"+tClass.getSimpleName());
+            String config = System.getProperty("println.eventLog");
+            if(StrUtil.isNotBlank(config) && StrUtil.equals(config, "true") ){
+                System.out.println("tClass.getSimpleName():"+tClass.getSimpleName());
+            }
             registryHandlers.putIfAbsent(tClass.getSimpleName(), requestHandler);
         }
     }

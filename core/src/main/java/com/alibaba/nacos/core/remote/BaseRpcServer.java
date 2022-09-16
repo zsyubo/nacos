@@ -46,7 +46,8 @@ public abstract class BaseRpcServer {
         String serverName = getClass().getSimpleName();
         Loggers.REMOTE.info("Nacos {} Rpc server starting at port {}", serverName, getServicePort());
         //启动服务
-        startServer();
+        System.out.println("className:none");
+        startServer("None");
         
         Loggers.REMOTE.info("Nacos {} Rpc server started at port {}", serverName, getServicePort());
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -76,7 +77,7 @@ public abstract class BaseRpcServer {
      *
      * @throws Exception exception throw if start server fail.
      */
-    public abstract void startServer() throws Exception;
+    public abstract void startServer(String className) throws Exception;
     
     /**
      * the increase offset of nacos server port for rpc server port.

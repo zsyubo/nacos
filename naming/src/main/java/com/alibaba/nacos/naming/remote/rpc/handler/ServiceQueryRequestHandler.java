@@ -55,8 +55,8 @@ public class ServiceQueryRequestHandler extends RequestHandler<ServiceQueryReque
     @Secured(action = ActionTypes.READ, parser = NamingResourceParser.class)
     public QueryServiceResponse handle(ServiceQueryRequest request, RequestMeta meta) throws NacosException {
         String cId = meta.getConnectionId();
-        System.out.println(cId+"::ServiceQueryRequestHandler-->request:"+ JSONUtil.toJsonStr(request));
-        System.out.println(cId+"::ServiceQueryRequestHandler-->meta:"+ JSONUtil.toJsonStr(meta));
+//        System.out.println(cId+"::ServiceQueryRequestHandler-->request:"+ JSONUtil.toJsonStr(request));
+//        System.out.println(cId+"::ServiceQueryRequestHandler-->meta:"+ JSONUtil.toJsonStr(meta));
 
         String namespaceId = request.getNamespace();
         String groupName = request.getGroupName();

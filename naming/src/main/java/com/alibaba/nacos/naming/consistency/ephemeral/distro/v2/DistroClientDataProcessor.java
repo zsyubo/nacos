@@ -92,9 +92,11 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
     
     @Override
     public void onEvent(Event event) {
+        // 如果是单机，则不进行处理
         if (EnvUtil.getStandaloneMode()) {
             return;
         }
+        // 如果不支持GRPC则不处理
         if (!upgradeJudgement.isUseGrpcFeatures()) {
             return;
         }

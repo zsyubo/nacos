@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * client连接管理
  * The manager of {@code ConnectionBasedClient}.
  *
  * @author xiweng.yy
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 @Component("connectionBasedClientManager")
 public class ConnectionBasedClientManager extends ClientConnectionEventListener implements ClientManager {
 
-    // 当前链接客户端
+    // 当前链接客户端  key：clientId(如：1663318511005_127.0.0.1_53453)   value:ConnectionBasedClient
     private final ConcurrentMap<String, ConnectionBasedClient> clients = new ConcurrentHashMap<>();
     
     public ConnectionBasedClientManager() {
@@ -69,8 +70,12 @@ public class ConnectionBasedClientManager extends ClientConnectionEventListener 
     
     @Override
     public boolean clientConnected(String clientId, ClientAttributes attributes) {
+        //type： GRPC
         String type = attributes.getClientAttribute(ClientConstants.CONNECTION_TYPE);
+//        System.out.println("type是："+type);
+        // GRPC是ConnectionBasedClientFactory
         ClientFactory clientFactory = ClientFactoryHolder.getInstance().findClientFactory(type);
+        //clientId：1663318511005_127.0.0.1_53453
         return clientConnected(clientFactory.newClient(clientId, attributes));
     }
     
@@ -103,6 +108,9 @@ public class ConnectionBasedClientManager extends ClientConnectionEventListener 
             return true;
         }
         client.release();
+        //subscriber:ClientServiceIndexesManager
+        //subscriber:DistroClientDataProcessor
+        //subscriber:NamingMetadataManager
         NotifyCenter.publishEvent(new ClientEvent.ClientDisconnectEvent(client));
         return true;
     }

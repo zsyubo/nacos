@@ -88,7 +88,7 @@ public class GrpcBiStreamRequestAcceptor extends BiRequestStreamGrpc.BiRequestSt
             public void onNext(Payload payload) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String stationTime = dateFormat.format(new Date());
-                System.out.println(TRAD_ID.get()+"GrpcBiStreamRequestAcceptor::onNext  time:"+stationTime);
+//                System.out.println(TRAD_ID.get()+"GrpcBiStreamRequestAcceptor::onNext  time:"+stationTime);
 
                 clientIp = payload.getMetadata().getClientIp();
                 traceDetailIfNecessary(payload);
@@ -108,22 +108,29 @@ public class GrpcBiStreamRequestAcceptor extends BiRequestStreamGrpc.BiRequestSt
                                     payload.getBody().getValue().toStringUtf8(), payload.getMetadata());
                     return;
                 }
-                System.out.println("parseObj："+parseObj.getClass().getSimpleName());
+                System.out.println("2type："+parseObj.getClass().getSimpleName());
                 // 第一次建立连接
                 if (parseObj instanceof ConnectionSetupRequest) {
                     ConnectionSetupRequest setUpRequest = (ConnectionSetupRequest) parseObj;
+                    //labels:
+                        //"module" -> "config"
+                        //"source" -> "sdk"
+                        //"taskId" -> "0"
+                        //"AppName" -> "unknown"
                     Map<String, String> labels = setUpRequest.getLabels();
                     String appName = "-";
+                    // 如果传了AppName，就用传的
                     if (labels != null && labels.containsKey(Constants.APPNAME)) {
                         appName = labels.get(Constants.APPNAME);
                     }
-                    
+                    // ConnectionMeta 连接信息
                     ConnectionMeta metaInfo = new ConnectionMeta(connectionId, payload.getMetadata().getClientIp(),
                             remoteIp, remotePort, localPort, ConnectionType.GRPC.getType(),
                             setUpRequest.getClientVersion(), appName, setUpRequest.getLabels());
                     metaInfo.setTenant(setUpRequest.getTenant());
                     Connection connection = new GrpcConnection(metaInfo, responseObserver, CONTEXT_KEY_CHANNEL.get());
                     connection.setAbilities(setUpRequest.getAbilities());
+                    // 如果是SDK请求(client)且服务没启动
                     boolean rejectSdkOnStarting = metaInfo.isSdkSource() && !ApplicationUtils.isStarted();
                     // 注册当前连接到connectionManager中
                     if (rejectSdkOnStarting || !connectionManager.register(connectionId, connection)) {
@@ -143,6 +150,7 @@ public class GrpcBiStreamRequestAcceptor extends BiRequestStreamGrpc.BiRequestSt
                     }
                     
                 } else if (parseObj instanceof Response) {
+                    // NotifySubscriberResponse
                     Response response = (Response) parseObj;
                     if (connectionManager.traced(clientIp)) {
                         Loggers.REMOTE_DIGEST

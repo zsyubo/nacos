@@ -95,7 +95,8 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String stationTime = dateFormat.format(new Date());
         if(ObjectUtil.notEqual(type,"HealthCheckRequest")){
-            System.out.println(TRAD_ID.get()+"time:"+stationTime+";;type:"+type);
+//            System.out.println(TRAD_ID.get()+"time:"+stationTime+";;type:"+type);
+            System.out.println("1request::type:"+type);
         }
 
         //sever是否已启动，主要是，服务还在启动中的情况, 让客户端稍后在重试
@@ -139,7 +140,7 @@ public class GrpcRequestAcceptor extends RequestGrpc.RequestImplBase {
         String connectionId = CONTEXT_KEY_CONN_ID.get();
         boolean requestValid = connectionManager.checkValid(connectionId);
         if (!requestValid) {
-            // 说明当前连接应该已经断开了
+            // 说明当前连接应该已经断开了或者check不通过
             Loggers.REMOTE_DIGEST
                     .warn("[{}] Invalid connection Id ,connection [{}] is un registered ,", "grpc", connectionId);
             Payload payloadResponse = GrpcUtils

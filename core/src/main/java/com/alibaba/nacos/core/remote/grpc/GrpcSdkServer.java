@@ -41,7 +41,14 @@ public class GrpcSdkServer extends BaseGrpcServer {
     public int rpcPortOffset() {
         return PORT_OFFSET;
     }
-    
+
+
+    @Override
+    public void startServer(String className) throws Exception {
+        System.out.println("GrpcSdkServer()::startServer");
+        super.startServer("GrpcSdkServer");
+    }
+
     @Override
     public ThreadPoolExecutor getRpcExecutor() {
         return GlobalExecutor.sdkRpcExecutor;

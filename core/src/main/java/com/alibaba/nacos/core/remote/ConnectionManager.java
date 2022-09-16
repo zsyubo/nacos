@@ -153,6 +153,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
             if (connections.containsKey(connectionId)) {
                 return true;
             }
+            // 是否触发风控和限流
             if (!checkLimit(connection)) {
                 return false;
             }

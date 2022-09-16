@@ -41,6 +41,10 @@ public class ClientConnectionEventListenerRegistry {
     public void notifyClientConnected(final Connection connection) {
         
         for (ClientConnectionEventListener clientConnectionEventListener : clientConnectionEventListeners) {
+            //notifyClientConnected:ConfigConnectionEventListener
+            //notifyClientConnected:RpcAckCallbackInitorOrCleaner
+            //notifyClientConnected:ConnectionBasedClientManager
+            System.out.println("notifyClientConnected:"+clientConnectionEventListener.getClass().getSimpleName());
             try {
                 clientConnectionEventListener.clientConnected(connection);
             } catch (Throwable throwable) {
@@ -54,6 +58,7 @@ public class ClientConnectionEventListenerRegistry {
     }
     
     /**
+     * 连接断开
      * notify where a new client disconnected.
      *
      * @param connection connection that disconnected.

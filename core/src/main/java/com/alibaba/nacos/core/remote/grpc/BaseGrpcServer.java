@@ -87,8 +87,8 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     }
     
     @Override
-    public void startServer() throws Exception {
-
+    public void startServer(String className) throws Exception {
+        System.out.println("className:"+className);
         // GRPC的服务注册器
         final MutableHandlerRegistry handlerRegistry = new MutableHandlerRegistry();
 
@@ -99,7 +99,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         //grpc中添加处理服务
         //MutableHandlerRegistry
         //BaseGrpcServer.CustomServerInterceptor
-        addServices(handlerRegistry, serverInterceptor);
+        addServices(className,handlerRegistry, serverInterceptor);
         //构造grpc服务端
         server = ServerBuilder.forPort(getServicePort())
                 // getRpcExecutor： 线程池
@@ -197,7 +197,7 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
     //这里会向io.grpc.Server对象中注册服务，当有客户端连接或接收到请求时，会触发对应的服务
     //handlerRegistry: MutableHandlerRegistry
     //serverInterceptor: BaseGrpcServer.CustomServerInterceptor
-    private void addServices(MutableHandlerRegistry handlerRegistry, ServerInterceptor... serverInterceptor) {
+    private void addServices(String className,MutableHandlerRegistry handlerRegistry, ServerInterceptor... serverInterceptor) {
         
         // unary common call register.
         final MethodDescriptor<Payload, Payload> unaryPayloadMethod = MethodDescriptor.<Payload, Payload>newBuilder()
@@ -208,6 +208,9 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         //服务回调（客户端注册时，这里方法会接收到）  路由处理
         final ServerCallHandler<Payload, Payload> payloadHandler = ServerCalls
                 .asyncUnaryCall((request, responseObserver) -> {
+                    if(!className.equals("GrpcSdkServer")){
+                        System.out.println("---------------------------->request:"+className);
+                    }
                     //服务回调（客户端注册时，这里方法会接收到）
                     grpcCommonRequestAcceptor.request(request, responseObserver);
                 });
@@ -220,7 +223,12 @@ public abstract class BaseGrpcServer extends BaseRpcServer {
         
         // bi stream register.
         final ServerCallHandler<Payload, Payload> biStreamHandler = ServerCalls.asyncBidiStreamingCall(
-                (responseObserver) -> grpcBiStreamRequestAcceptor.requestBiStream(responseObserver));
+                (responseObserver) -> {
+                    if(!className.equals("GrpcSdkServer")){
+                        System.out.println("---------------------------->requestBiStream:"+className);
+                    }
+                    return grpcBiStreamRequestAcceptor.requestBiStream(responseObserver);
+                });
         //构造服务
         final MethodDescriptor<Payload, Payload> biStreamMethod = MethodDescriptor.<Payload, Payload>newBuilder()
                 .setType(MethodDescriptor.MethodType.BIDI_STREAMING).setFullMethodName(MethodDescriptor

@@ -172,9 +172,12 @@ public class NamingEventPublisher extends Thread implements ShardedEventPublishe
             }
             return;
         }
+        System.out.println(event.getClass().getSimpleName()+"--------------handleEvent start--------------------->");
         for (Subscriber subscriber : subscribers) {
+            System.out.println("subscriber:"+subscriber.getClass().getSimpleName()+";"+event.getClass().getSimpleName());
             notifySubscriber(subscriber, event);
         }
+        System.out.println(event.getClass().getSimpleName()+"--------------handleEvent end--------------------->");
     }
     
     void checkIsStart() {

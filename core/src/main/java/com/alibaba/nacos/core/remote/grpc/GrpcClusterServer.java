@@ -34,14 +34,20 @@ public class GrpcClusterServer extends BaseGrpcServer {
     private static final int PORT_OFFSET = 1001;
 
     public GrpcClusterServer() {
-        System.out.println("GrpcClusterServer()");
+//        System.out.println("GrpcClusterServer()");
     }
 
     @Override
     public int rpcPortOffset() {
         return PORT_OFFSET;
     }
-    
+
+    @Override
+    public void startServer(String className) throws Exception {
+        System.out.println("GrpcClusterServer()::startServer");
+        super.startServer("GrpcClusterServer");
+    }
+
     @Override
     public ThreadPoolExecutor getRpcExecutor() {
         if (!GlobalExecutor.clusterRpcExecutor.allowsCoreThreadTimeOut()) {

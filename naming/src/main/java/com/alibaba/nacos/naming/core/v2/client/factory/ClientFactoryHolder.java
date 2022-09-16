@@ -59,6 +59,7 @@ public class ClientFactoryHolder {
      */
     public ClientFactory findClientFactory(String type) {
         if (StringUtils.isEmpty(type) || !clientFactories.containsKey(type)) {
+            // GRPC走这
             return clientFactories.get(ClientConstants.DEFAULT_FACTORY);
         }
         return clientFactories.get(type);

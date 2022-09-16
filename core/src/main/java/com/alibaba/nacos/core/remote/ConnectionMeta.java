@@ -99,13 +99,21 @@ public class ConnectionMeta {
     
     public ConnectionMeta(String connectionId, String clientIp, String remoteIp, int remotePort, int localPort,
             String connectType, String version, String appName, Map<String, String> labels) {
+        // 连接Id
         this.connectionId = connectionId;
+        // 客户端IP
         this.clientIp = clientIp;
+        // 连接类型
         this.connectType = connectType;
+        //
         this.version = version;
+        // 应用名
         this.appName = appName;
+        // 远程Ip
         this.remoteIp = remoteIp;
+        // 远程端口
         this.remotePort = remotePort;
+        // 本地端口
         this.localPort = localPort;
         this.createTime = new Date();
         this.lastActiveTime = System.currentTimeMillis();
@@ -113,6 +121,7 @@ public class ConnectionMeta {
     }
     
     /**
+     * 检查此连接是否为SDK源。
      * check if this connection is sdk source.
      *
      * @return if this connection is sdk source.

@@ -56,18 +56,23 @@ public class PushExecuteTask extends AbstractExecuteTask {
     public void run() {
         try {
             PushDataWrapper wrapper = generatePushData();
+            // 获取其他server节点ip
             for (String each : getTargetClientIds()) {
                 Client client = delayTaskEngine.getClientManager().getClient(each);
+                // 可能已经断开连接了
                 if (null == client) {
                     // means this client has disconnect
                     continue;
                 }
+                // 在那时不知道是撒
                 Subscriber subscriber = delayTaskEngine.getClientManager().getClient(each).getSubscriber(service);
+                // delayTaskEngine: PushDelayTaskExecuteEngine       pushExecutor:PushExecutorDelegate
                 delayTaskEngine.getPushExecutor().doPushWithCallback(each, subscriber, wrapper,
                         new NamingPushCallback(each, subscriber, wrapper.getOriginalData(), delayTask.isPushToAll()));
             }
         } catch (Exception e) {
             Loggers.PUSH.error("Push task for service" + service.getGroupedServiceName() + " execute failed ", e);
+            // 如果失败就重复执行
             delayTaskEngine.addTask(service, new PushDelayTask(service, 1000L));
         }
     }

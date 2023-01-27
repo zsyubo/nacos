@@ -49,6 +49,7 @@ public class NotifySubscriberRequest extends ServerRequest {
     }
     
     public static NotifySubscriberRequest buildSuccessResponse(ServiceInfo serviceInfo) {
+        // 也就是把新注册client传到其他server集群
         return new NotifySubscriberRequest(serviceInfo, "success");
     }
     

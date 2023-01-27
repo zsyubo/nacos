@@ -120,10 +120,12 @@ public class NamingSubscriberServiceV2Impl extends SmartSubscriber implements Na
         if (!upgradeJudgement.isUseGrpcFeatures()) {
             return;
         }
+        // client服务变动会触发
         if (event instanceof ServiceEvent.ServiceChangedEvent) {
             // If service changed, push to all subscribers.
             ServiceEvent.ServiceChangedEvent serviceChangedEvent = (ServiceEvent.ServiceChangedEvent) event;
             Service service = serviceChangedEvent.getService();
+            // 集群同步
             delayTaskEngine.addTask(service, new PushDelayTask(service, PushConfig.getInstance().getPushTaskDelay()));
         } else if (event instanceof ServiceEvent.ServiceSubscribedEvent) {
             // If service is subscribed by one client, only push this client.

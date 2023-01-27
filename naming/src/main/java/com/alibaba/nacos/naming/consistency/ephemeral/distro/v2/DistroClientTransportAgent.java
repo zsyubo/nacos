@@ -166,14 +166,19 @@ public class DistroClientTransportAgent implements DistroTransportAgent {
     
     @Override
     public DistroData getDatumSnapshot(String targetServer) {
+        // 从节点管理器获取目标节点信息
         Member member = memberManager.find(targetServer);
+        // 判断目标服务器是否健康
         if (checkTargetServerStatusUnhealthy(member)) {
             throw new DistroException(
                     String.format("[DISTRO] Cancel get snapshot caused by target server %s unhealthy", targetServer));
         }
+        // 构建请求参数
         DistroDataRequest request = new DistroDataRequest();
+        // 设置请求的操作类型为DataOperation.SNAPSHOT
         request.setDataOperation(DataOperation.SNAPSHOT);
         try {
+            // 使用Rpc代理对象发送同步rpc请求
             Response response = clusterRpcClientProxy.sendRequest(member, request);
             if (checkResponse(response)) {
                 return ((DistroDataResponse) response).getDistroData();

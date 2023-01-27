@@ -94,6 +94,7 @@ public class RpcPushService {
      * @param request      request.
      */
     public void pushWithoutAck(String connectionId, ServerRequest request) {
+        // 获取RPC连接
         Connection connection = connectionManager.getConnection(connectionId);
         if (connection != null) {
             try {

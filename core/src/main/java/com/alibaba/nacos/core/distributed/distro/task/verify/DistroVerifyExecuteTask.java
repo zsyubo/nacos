@@ -56,6 +56,7 @@ public class DistroVerifyExecuteTask extends AbstractExecuteTask {
                 if (transportAgent.supportCallbackTransport()) {
                     doSyncVerifyDataWithCallback(each);
                 } else {
+                    // 同步校验？
                     doSyncVerifyData(each);
                 }
             } catch (Exception e) {

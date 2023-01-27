@@ -54,7 +54,7 @@ public class InstanceRequestHandler extends RequestHandler<InstanceRequest, Inst
         Service service = Service
                 .newService(request.getNamespace(), request.getGroupName(), request.getServiceName(), true);
         switch (request.getType()) {
-            // 注册
+            // 第一次注册进这个逻辑
             case NamingRemoteConstants.REGISTER_INSTANCE:
                 return registerInstance(service, request, meta);
             case NamingRemoteConstants.DE_REGISTER_INSTANCE:

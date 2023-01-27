@@ -44,6 +44,7 @@ public class PushExecutorDelegate implements PushExecutor {
     
     @Override
     public void doPush(String clientId, Subscriber subscriber, PushDataWrapper data) {
+        // PushExecutorRpcImpl
         getPushExecuteService(clientId, subscriber).doPush(clientId, subscriber, data);
     }
     
@@ -53,6 +54,7 @@ public class PushExecutorDelegate implements PushExecutor {
     }
     
     private PushExecutor getPushExecuteService(String clientId, Subscriber subscriber) {
+        // 这地方根据连接来选择对应的通信方式
         Optional<SpiPushExecutor> result = SpiImplPushExecutorHolder.getInstance()
                 .findPushExecutorSpiImpl(clientId, subscriber);
         if (result.isPresent()) {

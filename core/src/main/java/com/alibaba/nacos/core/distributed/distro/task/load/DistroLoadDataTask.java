@@ -74,37 +74,48 @@ public class DistroLoadDataTask implements Runnable {
     }
     
     private void load() throws Exception {
+        // 若出自身之外没有其他节点，则休眠1秒，可能其他节点还未启动完毕
+        // 判断server列表是否为空，为空就代表不需要集群同步
         while (memberManager.allMembersWithoutSelf().isEmpty()) {
             Loggers.DISTRO.info("[DISTRO-INIT] waiting server list init...");
             TimeUnit.SECONDS.sleep(1);
         }
+        // 若数据类型为空，说明distroComponentHolder的组件注册器还未初始化完毕
         while (distroComponentHolder.getDataStorageTypes().isEmpty()) {
             Loggers.DISTRO.info("[DISTRO-INIT] waiting distro data storage register...");
             TimeUnit.SECONDS.sleep(1);
         }
+        // 加载每个类型的数据
         for (String each : distroComponentHolder.getDataStorageTypes()) {
             if (!loadCompletedMap.containsKey(each) || !loadCompletedMap.get(each)) {
+                // 调用加载方法(loadAllDataSnapshotFromRemote)，并标记已处理
                 loadCompletedMap.put(each, loadAllDataSnapshotFromRemote(each));
             }
         }
     }
     
     private boolean loadAllDataSnapshotFromRemote(String resourceType) {
+        // 获取数据传输对象
         DistroTransportAgent transportAgent = distroComponentHolder.findTransportAgent(resourceType);
+        // 获取数据处理器
         DistroDataProcessor dataProcessor = distroComponentHolder.findDataProcessor(resourceType);
         if (null == transportAgent || null == dataProcessor) {
             Loggers.DISTRO.warn("[DISTRO-INIT] Can't find component for type {}, transportAgent: {}, dataProcessor: {}",
                     resourceType, transportAgent, dataProcessor);
             return false;
         }
+        // 向每个节点请求数据
         for (Member each : memberManager.allMembersWithoutSelf()) {
             try {
                 Loggers.DISTRO.info("[DISTRO-INIT] load snapshot {} from {}", resourceType, each.getAddress());
+                // 获取数据
                 DistroData distroData = transportAgent.getDatumSnapshot(each.getAddress());
+                // 解析数据
                 boolean result = dataProcessor.processSnapshot(distroData);
                 Loggers.DISTRO
                         .info("[DISTRO-INIT] load snapshot {} from {} result: {}", resourceType, each.getAddress(),
                                 result);
+                // 若解析成功，标记此类型数据已加载完毕
                 if (result) {
                     distroComponentHolder.findDataStorage(resourceType).finishInitial();
                     return true;

@@ -50,7 +50,9 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     public void registerInstance(Service service, Instance instance, String clientId) {
         // getSingleton里面包含了注册的逻辑
         Service singleton = ServiceManager.getInstance().getSingleton(service);
+        // 获取GRPC Client
         Client client = clientManager.getClient(clientId);
+        // 判断是否临时节点
         if (!clientIsLegal(client, clientId)) {
             return;
         }

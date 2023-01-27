@@ -56,6 +56,7 @@ public class DistroProtocol {
         this.memberManager = memberManager;
         this.distroComponentHolder = distroComponentHolder;
         this.distroTaskEngineHolder = distroTaskEngineHolder;
+        // 启动Distro
         startDistroTask();
     }
     
@@ -64,7 +65,9 @@ public class DistroProtocol {
             isInitialized = true;
             return;
         }
+        // 数据校验
         startVerifyTask();
+        // 加载数据
         startLoadTask();
     }
     

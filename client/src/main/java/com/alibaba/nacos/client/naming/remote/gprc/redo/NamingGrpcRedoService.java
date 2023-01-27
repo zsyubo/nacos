@@ -38,6 +38,9 @@ import java.util.concurrent.TimeUnit;
  * 命名客户gprc重做服务。
  * 当连接重新连接到服务器时，重做注册和订阅。
  *
+ * NamingGrpcRedoService实现接口ConnectionEventListener，负责处理连接变更，并周期性执行客户端的注册和订阅的重置操作（满足条件情况下），其实就是为了在客户端连接失效然后再重新建立连接之后，提供了一个服务重新注册和订阅的操作。
+ *  https://zhuanlan.zhihu.com/p/508902797
+ *
  * Naming client gprc redo service.
  *
  * <p>When connection reconnect to server, redo the register and subscribe.

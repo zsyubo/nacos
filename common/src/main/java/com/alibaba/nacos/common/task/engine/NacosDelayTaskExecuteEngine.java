@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * Nacos 任务执行引擎
  * Nacos delay task execute engine.
  *
  * @author xiweng.yy
@@ -125,6 +126,7 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
         lock.lock();
         try {
             AbstractDelayTask existTask = tasks.get(key);
+            // 如果任务存在，则合并任务
             if (null != existTask) {
                 newTask.merge(existTask);
             }

@@ -158,8 +158,10 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
     
     private void handlerClientSyncData(ClientSyncData clientSyncData) {
         Loggers.DISTRO.info("[Client-Add] Received distro client sync data {}", clientSyncData.getClientId());
+        // 因为是同步数据，因此创建IpPortBasedClient，并缓存
         clientManager.syncClientConnected(clientSyncData.getClientId(), clientSyncData.getAttributes());
         Client client = clientManager.getClient(clientSyncData.getClientId());
+        // 升级此客户端的服务信息
         upgradeClient(client, clientSyncData);
     }
     
@@ -168,21 +170,30 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
         List<String> groupNames = clientSyncData.getGroupNames();
         List<String> serviceNames = clientSyncData.getServiceNames();
         List<InstancePublishInfo> instances = clientSyncData.getInstancePublishInfos();
+        // 已同步的服务集合
         Set<Service> syncedService = new HashSet<>();
         for (int i = 0; i < namespaces.size(); i++) {
+            // 从获取的数据中构建一个Service对象
             Service service = Service.newService(namespaces.get(i), groupNames.get(i), serviceNames.get(i));
             Service singleton = ServiceManager.getInstance().getSingleton(service);
+            // 标记此service已被处理
             syncedService.add(singleton);
+            // 获取当前的实例
             InstancePublishInfo instancePublishInfo = instances.get(i);
+            // 判断是否已经包含当前实例
             if (!instancePublishInfo.equals(client.getInstancePublishInfo(singleton))) {
+                // 不包含则添加
                 client.addServiceInstance(singleton, instancePublishInfo);
+                // 当前节点发布服务注册事件
                 NotifyCenter.publishEvent(
                         new ClientOperationEvent.ClientRegisterServiceEvent(singleton, client.getClientId()));
             }
         }
+        // 若当前client内部已发布的service不在本次同步的列表内，说明已经过时了，要删掉
         for (Service each : client.getAllPublishedService()) {
             if (!syncedService.contains(each)) {
                 client.removeServiceInstance(each);
+                // 发布客户端下线事件
                 NotifyCenter.publishEvent(
                         new ClientOperationEvent.ClientDeregisterServiceEvent(each, client.getClientId()));
             }

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Nacos 任务执行引擎基类    这样的好处是把任务的都封装成了task，这样代码逻辑更好管理，也跟方便重试
  * Abstract nacos task execute engine.
  *
  * @author xiweng.yy
@@ -32,9 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractNacosTaskExecuteEngine<T extends NacosTask> implements NacosTaskExecuteEngine<T> {
     
     private final Logger log;
-    
+
+    // 里面装的任务处理器，，   key为对象， Value为对应的Processor
     private final ConcurrentHashMap<Object, NacosTaskProcessor> taskProcessors = new ConcurrentHashMap<Object, NacosTaskProcessor>();
-    
+
+    // 默认的处理器
     private NacosTaskProcessor defaultTaskProcessor;
     
     public AbstractNacosTaskExecuteEngine(Logger logger) {
@@ -53,6 +56,7 @@ public abstract class AbstractNacosTaskExecuteEngine<T extends NacosTask> implem
     
     @Override
     public NacosTaskProcessor getProcessor(Object key) {
+        // 如果在Map中找不到，那么就用默认执行器
         return taskProcessors.containsKey(key) ? taskProcessors.get(key) : defaultTaskProcessor;
     }
     

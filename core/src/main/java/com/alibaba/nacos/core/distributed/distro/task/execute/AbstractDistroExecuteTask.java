@@ -60,6 +60,7 @@ public abstract class AbstractDistroExecuteTask extends AbstractExecuteTask {
             return;
         }
         Loggers.DISTRO.info("[DISTRO-START] {}", toString());
+        // GPRC都支持
         if (transportAgent.supportCallbackTransport()) {
             doExecuteWithCallback(new DistroExecuteCallback());
         } else {

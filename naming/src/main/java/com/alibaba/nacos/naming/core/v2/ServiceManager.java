@@ -30,7 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author xiweng.yy
  */
 public class ServiceManager {
-    
+
+    /**
+     * 单例模式
+     */
     private static final ServiceManager INSTANCE = new ServiceManager();
     
     private final ConcurrentHashMap<Service, Service> singletonRepository;

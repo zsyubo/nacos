@@ -367,6 +367,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
                             expelClient.add(client.getMetaInfo().getConnectionId());
                             expelCount--;
                         } else if (now - client.getMetaInfo().getLastActiveTime() >= KEEP_ALIVE_TIME) {
+                            // 判断连接是否过期，，20秒没有客户端保活请求，则加入过期集合
                             outDatedConnections.add(client.getMetaInfo().getConnectionId());
                         }
                         
@@ -421,6 +422,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
                         final CountDownLatch latch = new CountDownLatch(outDatedConnections.size());
                         for (String outDateConnectionId : outDatedConnections) {
                             try {
+                                // 在清理断开的客户端之前，做最后一次探活，没有客户端没有响应，那就证明客户端挂了，需要清理掉失效的连接
                                 Connection connection = getConnection(outDateConnectionId);
                                 if (connection != null) {
                                     ClientDetectionRequest clientDetectionRequest = new ClientDetectionRequest();

@@ -115,7 +115,9 @@ public class DistroProtocol {
      * @param delay     delay time for sync
      */
     public void sync(DistroKey distroKey, DataOperation action, long delay) {
+        //
         for (Member each : memberManager.allMembersWithoutSelf()) {
+            // 同步到其他server   action：DataOperation.CHANGE
             syncToTarget(distroKey, action, each.getAddress(), delay);
         }
     }
@@ -131,7 +133,9 @@ public class DistroProtocol {
     public void syncToTarget(DistroKey distroKey, DataOperation action, String targetServer, long delay) {
         DistroKey distroKeyWithTarget = new DistroKey(distroKey.getResourceKey(), distroKey.getResourceType(),
                 targetServer);
+        // action：DataOperation.CHANGE
         DistroDelayTask distroDelayTask = new DistroDelayTask(distroKeyWithTarget, action, delay);
+        // com.alibaba.nacos.core.distributed.distro.task.delay.DistroDelayTaskProcessor.process 去处理
         distroTaskEngineHolder.getDelayTaskExecuteEngine().addTask(distroKeyWithTarget, distroDelayTask);
         if (Loggers.DISTRO.isDebugEnabled()) {
             Loggers.DISTRO.debug("[DISTRO-SCHEDULE] {} to {}", distroKey, targetServer);

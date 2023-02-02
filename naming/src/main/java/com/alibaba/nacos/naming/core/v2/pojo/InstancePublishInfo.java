@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * client的一些信息
  * Instance POJO of client published for Nacos v2.
  *
  * @author xiweng.yy

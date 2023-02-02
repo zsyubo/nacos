@@ -36,9 +36,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author xiweng.yy
  */
 public abstract class AbstractClient implements Client {
-    
+    /**
+     * 当一个client进来了，会注册到这里面    key是Service，里面封装的namespace、group信息，InstancePublishInfo封装的client信息，里面时client的ip、port信息
+     */
     protected final ConcurrentHashMap<Service, InstancePublishInfo> publishers = new ConcurrentHashMap<>(16, 0.75f, 1);
-    
+
+    /**
+     *  nacos2 当client列表变动时，会去推送订阅者
+     */
     protected final ConcurrentHashMap<Service, Subscriber> subscribers = new ConcurrentHashMap<>(16, 0.75f, 1);
     
     protected volatile long lastUpdatedTime;

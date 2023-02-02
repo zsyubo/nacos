@@ -55,6 +55,7 @@ public class DistroSyncChangeTask extends AbstractDistroExecuteTask {
     
     @Override
     protected void doExecuteWithCallback(DistroCallback callback) {
+        //type： "Nacos:Naming:v2:ClientData";
         String type = getDistroKey().getResourceType();
         DistroData distroData = getDistroData(type);
         if (null == distroData) {

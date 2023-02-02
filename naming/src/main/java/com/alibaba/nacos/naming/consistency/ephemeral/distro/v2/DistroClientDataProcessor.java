@@ -100,9 +100,11 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
         if (!upgradeJudgement.isUseGrpcFeatures()) {
             return;
         }
+        // 集群校验
         if (event instanceof ClientEvent.ClientVerifyFailedEvent) {
             syncToVerifyFailedServer((ClientEvent.ClientVerifyFailedEvent) event);
         } else {
+            // 集群同步
             syncToAllServer((ClientEvent) event);
         }
     }
@@ -120,6 +122,7 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
     private void syncToAllServer(ClientEvent event) {
         Client client = event.getClient();
         // Only ephemeral data sync by Distro, persist client should sync by raft.
+        // 只有临时节点采用Distro，， 持久节点采用raft
         if (null == client || !client.isEphemeral() || !clientManager.isResponsibleClient(client)) {
             return;
         }
@@ -127,6 +130,7 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
             DistroKey distroKey = new DistroKey(client.getClientId(), TYPE);
             distroProtocol.sync(distroKey, DataOperation.DELETE);
         } else if (event instanceof ClientEvent.ClientChangedEvent) {
+            // client变动会触发，比如新注册的client
             DistroKey distroKey = new DistroKey(client.getClientId(), TYPE);
             distroProtocol.sync(distroKey, DataOperation.CHANGE);
         }
@@ -161,7 +165,7 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
         // 因为是同步数据，因此创建IpPortBasedClient，并缓存
         clientManager.syncClientConnected(clientSyncData.getClientId(), clientSyncData.getAttributes());
         Client client = clientManager.getClient(clientSyncData.getClientId());
-        // 升级此客户端的服务信息
+        // 更新此客户端的服务信息
         upgradeClient(client, clientSyncData);
     }
     

@@ -39,7 +39,10 @@ import org.springframework.stereotype.Component;
  */
 @Component("ephemeralClientOperationService")
 public class EphemeralClientOperationServiceImpl implements ClientOperationService {
-    
+
+    /**
+     * ClientManagerDelegate
+     */
     private final ClientManager clientManager;
     
     public EphemeralClientOperationServiceImpl(ClientManagerDelegate clientManager) {
@@ -50,12 +53,13 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     public void registerInstance(Service service, Instance instance, String clientId) {
         // getSingleton里面包含了注册的逻辑
         Service singleton = ServiceManager.getInstance().getSingleton(service);
-        // 获取GRPC Client
+        // 获取GRPC Client  ClientManagerDelegate#getClient
         Client client = clientManager.getClient(clientId);
         // 判断是否临时节点
         if (!clientIsLegal(client, clientId)) {
             return;
         }
+        // 创建InstancePublishInfo
         InstancePublishInfo instanceInfo = getPublishInfo(instance);
         client.addServiceInstance(singleton, instanceInfo);
         client.setLastUpdatedTime();

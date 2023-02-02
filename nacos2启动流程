@@ -23,7 +23,7 @@ com.alibaba.nacos.core.remote.BaseRpcServer#start
                 1661935982300_127.0.0.1_51664::meta:{"connectionId":"1661935982300_127.0.0.1_51664","clientIp":"192.168.137.1","clientVersion":"Nacos-Java-Client:v2.0.3","labels":{"module":"naming","source":"sdk"}}
     ServerCheckRequest -> com.alibaba.nacos.core.remote.grpc.GrpcRequestAcceptor.request里面就处理了    client第一次链接
 
-    NotifySubscriberRequest --> 集群同步
+    NotifySubscriberRequest --> 这个是推送给  订阅client的
     DistroDataRequest
 
 com.alibaba.nacos.naming.cluster.ServerListManager

@@ -72,6 +72,7 @@ public class DistroSyncChangeTask extends AbstractDistroExecuteTask {
     }
     
     private DistroData getDistroData(String type) {
+        //findDataStorage一般是 DistroClientDataProcessor
         DistroData result = getDistroComponentHolder().findDataStorage(type).getDistroData(getDistroKey());
         if (null != result) {
             result.setType(OPERATION);

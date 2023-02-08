@@ -26,11 +26,20 @@ import com.alibaba.nacos.api.remote.request.Request;
 public abstract class AbstractNamingRequest extends Request {
     
     private static final String MODULE = "naming";
-    
+
+    /**
+     * 命名空间
+     */
     private String namespace;
-    
+
+    /**
+     * 服务名
+     */
     private String serviceName;
-    
+
+    /**
+     * 组名
+     */
     private String groupName;
     
     public AbstractNamingRequest() {

@@ -47,7 +47,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Component("ephemeralIpPortClientManager")
 public class EphemeralIpPortClientManager implements ClientManager {
-    
+
+    /**
+     * key为ClientId，  IpPortBasedClient基本可以认为是GRPC的长连接
+     */
     private final ConcurrentMap<String, IpPortBasedClient> clients = new ConcurrentHashMap<>();
     
     private final DistroMapper distroMapper;

@@ -31,7 +31,10 @@ public class HealthCheckInstancePublishInfo extends InstancePublishInfo {
     private static final long serialVersionUID = 5424801693490263492L;
     
     private long lastHeartBeatTime = System.currentTimeMillis();
-    
+
+    /**
+     * 存放健康检查状态
+     */
     private HealthCheckStatus healthCheckStatus;
     
     public HealthCheckInstancePublishInfo() {

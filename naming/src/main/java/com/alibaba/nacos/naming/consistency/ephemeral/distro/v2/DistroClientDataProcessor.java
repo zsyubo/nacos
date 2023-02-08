@@ -227,6 +227,7 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
     
     @Override
     public DistroData getDistroData(DistroKey distroKey) {
+        // 获取client
         Client client = clientManager.getClient(distroKey.getResourceKey());
         if (null == client) {
             return null;

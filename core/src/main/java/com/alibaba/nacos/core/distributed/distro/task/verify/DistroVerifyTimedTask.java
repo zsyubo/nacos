@@ -79,6 +79,7 @@ public class DistroVerifyTimedTask implements Runnable {
             if (null == agent) {
                 continue;
             }
+            //  异步去校验
             executeTaskExecuteEngine.addTask(member.getAddress() + type,
                     new DistroVerifyExecuteTask(agent, verifyData, member.getAddress(), type));
         }

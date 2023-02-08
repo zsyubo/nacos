@@ -88,6 +88,7 @@ public class DistroProtocol {
     }
     
     private void startVerifyTask() {
+        // 定时校验集群中数据完整性   延迟5秒开始，间隔5秒轮询。
         GlobalExecutor.schedulePartitionDataTimedSync(new DistroVerifyTimedTask(memberManager, distroComponentHolder,
                         distroTaskEngineHolder.getExecuteWorkersManager()),
                 DistroConfig.getInstance().getVerifyIntervalMillis());

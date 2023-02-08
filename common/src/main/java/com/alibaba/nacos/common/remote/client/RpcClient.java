@@ -346,11 +346,12 @@ public abstract class RpcClient implements Closeable {
                         if (reconnectContext == null) {
                             //check alive time.
                             if (System.currentTimeMillis() - lastActiveTimeStamp >= keepAliveTime) {
-                                // 连接检查是否正常,  这地方是健康检查
+                                // 连接检查是否正常,  这地方是健康检查，，健康检查5秒一次
                                 boolean isHealthy = healthCheck();
                                 // 失败就重连
                                 if (!isHealthy) {
                                     if (currentConnection == null) {
+                                        // 说明当前连接断开了，等待重连
                                         continue;
                                     }
                                     LoggerUtils.printIfInfoEnabled(LOGGER,
@@ -377,6 +378,7 @@ public abstract class RpcClient implements Closeable {
                                     continue;
                                 }
                             } else {
+                                // 入宫没达到健康检查时间则跳过
                                 continue;
                             }
                             

@@ -108,7 +108,11 @@ public class GlobalConfig {
     public static Long getEmptyServiceCleanInterval() {
         return EnvUtil.getProperty(EMPTY_SERVICE_CLEAN_INTERVAL, Long.class, 60000L);
     }
-    
+
+    /**
+     * 可清理空服务的事件，60s
+     * @return
+     */
     public static Long getEmptyServiceExpiredTime() {
         return EnvUtil.getProperty(EMPTY_SERVICE_EXPIRED_TIME, Long.class, 60000L);
     }

@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
+ * 清理空服务的
  * Empty service auto cleaner for v2.x.
  *
  * @author xiweng.yy
@@ -50,7 +51,8 @@ public class EmptyServiceAutoCleanerV2 extends AbstractNamingCleaner {
             ServiceStorage serviceStorage) {
         this.clientServiceIndexesManager = clientServiceIndexesManager;
         this.serviceStorage = serviceStorage;
-        // 你妈的。。直接在构造的时候初始化定时任务， 30S一次
+        // 这个是清理空服务
+        // 你妈的。。直接在构造的时候初始化定时任务， 30S一次，延时60s
         GlobalExecutor.scheduleExpiredClientCleaner(this, TimeUnit.SECONDS.toMillis(30),
                 GlobalConfig.getEmptyServiceCleanInterval(), TimeUnit.MILLISECONDS);
         

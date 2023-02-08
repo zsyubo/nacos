@@ -22,7 +22,7 @@ import com.alibaba.nacos.naming.pojo.Subscriber;
 
 import java.util.Collection;
 
-/**
+/**  一般是IpPortBasedClient
  * Nacos naming client.
  *
  * <p>The abstract concept of the client stored by on the server of Nacos naming module. It is used to store which

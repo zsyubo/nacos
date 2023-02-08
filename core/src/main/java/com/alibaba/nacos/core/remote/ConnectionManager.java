@@ -297,7 +297,8 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
      */
     @PostConstruct
     public void start() {
-        
+
+        // 健康检查处理
         // Start UnHealthy Connection Expel Task.
         RpcScheduledExecutor.COMMON_SERVER_EXECUTOR.scheduleWithFixedDelay(new Runnable() {
             @Override
@@ -321,7 +322,7 @@ public class ConnectionManager extends Subscriber<ConnectionLimitRuleChangeEvent
                     List<String> expelClient = new LinkedList<>();
                     
                     Map<String, AtomicInteger> expelForIp = new HashMap<>(16);
-                    
+
                     //1. calculate expel count  of ip.
                     for (Map.Entry<String, Connection> entry : entries) {
                         

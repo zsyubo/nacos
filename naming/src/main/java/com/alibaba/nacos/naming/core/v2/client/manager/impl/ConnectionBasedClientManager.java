@@ -146,7 +146,10 @@ public class ConnectionBasedClientManager extends ClientConnectionEventListener 
     }
     
     private static class ExpiredClientCleaner implements Runnable {
-        
+
+        /**
+         * ConnectionBasedClientManager
+         */
         private final ConnectionBasedClientManager clientManager;
         
         public ExpiredClientCleaner(ConnectionBasedClientManager clientManager) {
@@ -156,6 +159,7 @@ public class ConnectionBasedClientManager extends ClientConnectionEventListener 
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
+            // ConnectionBasedClientManager#allClientId
             for (String each : clientManager.allClientId()) {
                 ConnectionBasedClient client = (ConnectionBasedClient) clientManager.getClient(each);
                 // 3分钟没活动的连接就释放

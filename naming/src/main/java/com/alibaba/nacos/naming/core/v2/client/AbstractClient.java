@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ *  里面粗存放的client信息
  * Abstract implementation of {@code Client}.
  *
  * @author xiweng.yy
@@ -65,6 +66,7 @@ public abstract class AbstractClient implements Client {
     @Override
     public boolean addServiceInstance(Service service, InstancePublishInfo instancePublishInfo) {
         if (null == publishers.put(service, instancePublishInfo)) {
+            // 如果是Null, 则证明是第一次注册
             MetricsMonitor.incrementInstanceCount();
         }
         NotifyCenter.publishEvent(new ClientEvent.ClientChangedEvent(this));

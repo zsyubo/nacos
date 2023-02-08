@@ -95,8 +95,10 @@ public class DistroLoadDataTask implements Runnable {
     }
     
     private boolean loadAllDataSnapshotFromRemote(String resourceType) {
+        // DistroClientDataProcessor.TYPE, DistroClientTransportAgent
         // 获取数据传输对象
         DistroTransportAgent transportAgent = distroComponentHolder.findTransportAgent(resourceType);
+        // DistroClientDataProcessor.TYPE, DistroClientDataProcessor
         // 获取数据处理器
         DistroDataProcessor dataProcessor = distroComponentHolder.findDataProcessor(resourceType);
         if (null == transportAgent || null == dataProcessor) {

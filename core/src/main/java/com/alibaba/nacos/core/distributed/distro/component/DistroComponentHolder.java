@@ -31,11 +31,18 @@ import java.util.Set;
 public class DistroComponentHolder {
     
     private final Map<String, DistroTransportAgent> transportAgentMap = new HashMap<>();
-    
+
+    /**
+     * 在com.alibaba.nacos.naming.consistency.ephemeral.distro.v2.DistroClientComponentRegistry#doRegister()  中注册
+     */
     private final Map<String, DistroDataStorage> dataStorageMap = new HashMap<>();
     
     private final Map<String, DistroFailedTaskHandler> failedTaskHandlerMap = new HashMap<>();
-    
+
+    /**
+     * DistroClientDataProcessor.TYPE, DistroClientDataProcessor
+     * DistroClientDataProcessor.TYPE, DistroClientTransportAgent
+     */
     private final Map<String, DistroDataProcessor> dataProcessorMap = new HashMap<>();
     
     public DistroTransportAgent findTransportAgent(String type) {

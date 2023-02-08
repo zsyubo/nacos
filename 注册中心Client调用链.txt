@@ -36,7 +36,7 @@ NacosServiceDiscovery#getInstances
                         GrpcSdkClient#GrpcSdkClient
                         NamingGrpcRedoService#NamingGrpcRedoService
                         NamingGrpcClientProxy#start
-                            RpcClient#start   心跳在这里面的  ---> HealthCheckRequest
+                            RpcClient#start   心跳在这里面的  ---> HealthCheckRequest   健康检查5秒一次
 
 com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, java.lang.String, boolean)
                                                     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
@@ -50,3 +50,11 @@ com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, jav
 
 #第一区链接客户端、重连的情况
 com.alibaba.nacos.common.remote.client.grpc.GrpcClient#connectToServer
+
+
+
+nacos为检查连接单独给了一个线程，这点比较好，，，，比如心跳不用去关系连接的问题   心跳5秒
+大量使用Event和线程池task
+
+
+com.alibaba.nacos.core.remote.ConnectionManager.start 健康检查   30秒一次

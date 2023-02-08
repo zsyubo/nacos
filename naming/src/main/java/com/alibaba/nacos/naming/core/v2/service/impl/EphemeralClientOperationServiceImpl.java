@@ -51,15 +51,16 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     
     @Override
     public void registerInstance(Service service, Instance instance, String clientId) {
+        // 这里面注册的Service
         // getSingleton里面包含了注册的逻辑
         Service singleton = ServiceManager.getInstance().getSingleton(service);
-        // 获取GRPC Client  ClientManagerDelegate#getClient
+        // 获取GRPC Client  ClientManagerDelegate#getClient     client是IpPortBasedClient
         Client client = clientManager.getClient(clientId);
         // 判断是否临时节点
         if (!clientIsLegal(client, clientId)) {
             return;
         }
-        // 创建InstancePublishInfo
+        // 构造InstancePublishInfo
         InstancePublishInfo instanceInfo = getPublishInfo(instance);
         client.addServiceInstance(singleton, instanceInfo);
         client.setLastUpdatedTime();

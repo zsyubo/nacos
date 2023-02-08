@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Service里面主要时存放了 namesoace group的信息
+ * Service里面主要是存放了 namespace\group的信息，也就是上图namespace\group\service 三部分信息，，，就相当组信息
  * Service POJO for Nacos v2.
  *
  * @author xiweng.yy

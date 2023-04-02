@@ -85,6 +85,7 @@ public class ServiceStorage {
     public ServiceInfo getPushData(Service service) {
         // 初始化一个ServiceInfo
         ServiceInfo result = emptyServiceInfo(service);
+        // 如果在ServiceManager#singletonRepository不存在，则返回
         if (!ServiceManager.getInstance().containSingleton(service)) {
             return result;
         }

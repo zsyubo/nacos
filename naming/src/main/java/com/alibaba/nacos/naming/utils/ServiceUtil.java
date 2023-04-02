@@ -277,6 +277,7 @@ public class ServiceUtil {
     }
 
     /**
+     *  选择具有正常保护的服务信息实例
      * Select instance of service info with healthy protection.
      *
      * @param serviceInfo     original service info
@@ -323,6 +324,7 @@ public class ServiceUtil {
     }
 
     /**
+     * 选择实例
      * Select instance of service info.
      *
      * @param serviceInfo original service info

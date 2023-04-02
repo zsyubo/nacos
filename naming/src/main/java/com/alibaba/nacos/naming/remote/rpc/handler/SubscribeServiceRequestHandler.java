@@ -74,13 +74,16 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
         String groupName = request.getGroupName();
         String app = request.getHeader("app", "unknown");
         String groupedServiceName = NamingUtils.getGroupedName(serviceName, groupName);
+        //创建要给Service
         Service service = Service.newService(namespaceId, groupName, serviceName, true);
         Subscriber subscriber = new Subscriber(meta.getClientIp(), meta.getClientVersion(), app,
                 meta.getClientIp(), namespaceId, groupedServiceName, 0, request.getClusters());
+        // serviceStorage.getData(service) 这里面就是区去获取到service中的所有实例了
         ServiceInfo serviceInfo = handleClusterData(serviceStorage.getData(service),
                 metadataManager.getServiceMetadata(service).orElse(null),
                 subscriber);
         if (request.isSubscribe()) {
+            // 注册订阅
             clientOperationService.subscribeService(service, subscriber, meta.getConnectionId());
         } else {
             clientOperationService.unsubscribeService(service, subscriber, meta.getConnectionId());
@@ -100,6 +103,7 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
      */
     @Deprecated
     private ServiceInfo handleClusterData(ServiceInfo data, ServiceMetadata metadata, Subscriber subscriber) {
+        // 这地方是客户端可以指定集群节点？
         return StringUtils.isBlank(subscriber.getCluster()) ? data
                 : ServiceUtil.selectInstancesWithHealthyProtection(data, metadata, subscriber.getCluster());
     }

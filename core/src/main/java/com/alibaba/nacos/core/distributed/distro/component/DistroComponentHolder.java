@@ -42,6 +42,7 @@ public class DistroComponentHolder {
     /**
      * DistroClientDataProcessor.TYPE, DistroClientDataProcessor
      * DistroClientDataProcessor.TYPE, DistroClientTransportAgent
+     * com.alibaba.nacos.naming.consistency.ephemeral.distro.v2.DistroClientComponentRegistry#doRegister()
      */
     private final Map<String, DistroDataProcessor> dataProcessorMap = new HashMap<>();
     

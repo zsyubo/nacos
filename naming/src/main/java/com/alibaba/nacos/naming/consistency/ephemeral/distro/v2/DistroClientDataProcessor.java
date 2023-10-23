@@ -146,6 +146,7 @@ public class DistroClientDataProcessor extends SmartSubscriber implements Distro
         switch (distroData.getType()) {
             case ADD:
             case CHANGE:
+                // 反序列化数据
                 ClientSyncData clientSyncData = ApplicationUtils.getBean(Serializer.class)
                         .deserialize(distroData.getContent(), ClientSyncData.class);
                 handlerClientSyncData(clientSyncData);

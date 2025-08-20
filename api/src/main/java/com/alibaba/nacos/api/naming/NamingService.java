@@ -87,6 +87,7 @@ public interface NamingService {
     void registerInstance(String serviceName, Instance instance) throws NacosException;
     
     /**
+     * 注册入口
      * register a instance to service with specified instance properties.
      *
      * @param serviceName name of service

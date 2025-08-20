@@ -51,7 +51,7 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     
     @Override
     public void registerInstance(Service service, Instance instance, String clientId) {
-        // 这里面注册的Service
+        // 这里面注册的Service，，，， Service是外面大的一层，里面才是具体的instance
         // getSingleton里面包含了注册的逻辑
         Service singleton = ServiceManager.getInstance().getSingleton(service);
         // 获取GRPC Client  ClientManagerDelegate#getClient     client是IpPortBasedClient
@@ -64,11 +64,14 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
         InstancePublishInfo instanceInfo = getPublishInfo(instance);
         client.addServiceInstance(singleton, instanceInfo);
         client.setLastUpdatedTime();
+        // 核心在这个事件，里面才是真实操作注册表的逻辑
+        // com.alibaba.nacos.naming.core.v2.index.ClientServiceIndexesManager.addPublisherIndexes
         NotifyCenter.publishEvent(new ClientOperationEvent.ClientRegisterServiceEvent(singleton, clientId));
         NotifyCenter
                 .publishEvent(new MetadataEvent.InstanceMetadataEvent(singleton, instanceInfo.getMetadataId(), false));
     }
-    
+
+    // 注销逻辑
     @Override
     public void deregisterInstance(Service service, Instance instance, String clientId) {
         if (!ServiceManager.getInstance().containSingleton(service)) {

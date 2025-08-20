@@ -124,6 +124,7 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
     
     private void addPublisherIndexes(Service service, String clientId) {
         publisherIndexes.computeIfAbsent(service, (key) -> new ConcurrentHashSet<>());
+        // 都存放在这里面的   这就是nacos2.0的注册表
         publisherIndexes.get(service).add(clientId);
         NotifyCenter.publishEvent(new ServiceEvent.ServiceChangedEvent(service, true));
     }

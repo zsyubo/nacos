@@ -38,15 +38,26 @@ NacosServiceDiscovery#getInstances
                         NamingGrpcClientProxy#start
                             RpcClient#start   心跳在这里面的  ---> HealthCheckRequest   健康检查5秒一次
 
+
+# 拉取注册表
 com.alibaba.nacos.api.naming.NamingService.selectInstances(java.lang.String, java.lang.String, boolean)
                                                     public List<Instance> selectInstances(String serviceName, String groupName, boolean healthy) throws NacosException {
     NacosNamingService#selectInstances(java.lang.String, java.lang.String, java.util.List<java.lang.String>, boolean, boolean)
-        ServiceInfoHolder#getServiceInfo
-        NamingClientProxyDelegate#subscribe
-            ServiceInfoUpdateService#scheduleUpdateIfAbsent
-                ServiceInfoUpdateService#addTask  定时同步任务  ----> ServiceQueryRequest
-                    executor#schedule(task, 1000L, TimeUnit.MILLISECONDS); ===>ServiceInfoUpdateService.UpdateTask#run
+        是否订阅(默认都是true)
+            ServiceInfoHolder#getServiceInfo
+                从com.alibaba.nacos.client.naming.cache.ServiceInfoHolder.serviceInfoMap中拿取ServiceInfo
+            如拿到的ServiceInfo为空(true)
+                NamingClientProxyDelegate#subscribe
+                    ServiceInfoUpdateService#scheduleUpdateIfAbsent
+                        生成一个com.alibaba.nacos.client.naming.core.ServiceInfoUpdateService.UpdateTask.UpdateTask(6秒一次，定时去同步注册表)
+                            ServiceInfoUpdateService#addTask  定时同步任务  ----> ServiceQueryRequest
+                                executor#schedule(task, 1000L, TimeUnit.MILLISECONDS); ===>ServiceInfoUpdateService.UpdateTask#run
+                                [Send]底层是发送一个ServiceQueryRequest，，，处理发放是com.alibaba.nacos.naming.remote.rpc.handler.ServiceQueryRequestHandler.handle
+                   如果ServiceInfo还是为空
+                    com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.doSubscribe
+                       [Send]发送一个SubscribeServiceRequest， 处理的服务端方法是com.alibaba.nacos.naming.remote.rpc.handler.SubscribeServiceRequestHandler.handle
         NacosNamingService#selectInstances(com.alibaba.nacos.api.naming.pojo.ServiceInfo, boolean)  过滤不健康的实例
+
 
 #第一区链接客户端、重连的情况
 com.alibaba.nacos.common.remote.client.grpc.GrpcClient#connectToServer
@@ -58,3 +69,18 @@ nacos为检查连接单独给了一个线程，这点比较好，，，，比如
 
 
 com.alibaba.nacos.core.remote.ConnectionManager.start 健康检查   30秒一次
+
+
+# 客户端注册
+com.alibaba.nacos.client.naming.NacosNamingService.registerInstance(java.lang.String, java.lang.String, com.alibaba.nacos.api.naming.pojo.Instance)
+    com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.registerService
+    [Send]发起一个 InstanceRequest 交由Server处理
+
+
+
+
+
+# 定时同步任务
+com.alibaba.nacos.client.naming.core.ServiceInfoUpdateService.UpdateTask.run
+
+客户端存储的Service数据都在 ServiceInfoHolder serviceInfoHolder;中

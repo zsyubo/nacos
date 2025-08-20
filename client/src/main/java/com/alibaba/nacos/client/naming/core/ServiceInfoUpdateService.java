@@ -43,6 +43,7 @@ import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 /**
  * 服务信息更新服务。
  * 这个是做定时更新的
+ * 通过定时任务定期从 Nacos Server 获取最新的服务实例信息，并更新到本地缓存。
  *
  * Service information update service.
  *
@@ -190,7 +191,7 @@ public class ServiceInfoUpdateService implements Closeable {
                     return;
                 }
 
-                //正常是相同的，也就是同步成功的时间
+                //正常是相同的，也就是同步成功的时间， 如果同步成功了
                 if (serviceObj.getLastRefTime() <= lastRefTime) {
                     serviceObj = namingClientProxy.queryInstancesOfService(serviceName, groupName, clusters, 0, false);
                     serviceInfoHolder.processServiceInfo(serviceObj);
@@ -209,7 +210,7 @@ public class ServiceInfoUpdateService implements Closeable {
                 incFailCount();
                 NAMING_LOGGER.warn("[NA] failed to update serviceName: " + groupedServiceName, e);
             } finally {
-                // 去发起下一次更新,如果更新正常，那么下一次触发时间为60s
+                // 去发起下一次更新, 如果失败，那么保底更新时间为60秒
                 executor.schedule(this, Math.min(delayTime << failCount, DEFAULT_DELAY * 60), TimeUnit.MILLISECONDS);
                 // delayTime << failCount  如果失败了，就指数级时间重试
             }

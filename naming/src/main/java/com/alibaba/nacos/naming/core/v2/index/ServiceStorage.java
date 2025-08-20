@@ -30,11 +30,7 @@ import com.alibaba.nacos.naming.misc.SwitchDomain;
 import com.alibaba.nacos.naming.utils.InstanceUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -111,6 +107,7 @@ public class ServiceStorage {
     private List<Instance> getAllInstancesFromIndex(Service service) {
         Set<Instance> result = new HashSet<>();
         Set<String> clusters = new HashSet<>();
+        // 底层是从publisherIndexes中拿数据
         for (String each : serviceIndexesManager.getAllClientsRegisteredService(service)) {
             // 获取InstancePublishInfo
             Optional<InstancePublishInfo> instancePublishInfo = getInstanceInfo(each, service);

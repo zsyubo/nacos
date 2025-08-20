@@ -23,6 +23,8 @@ import com.alibaba.nacos.client.naming.remote.gprc.redo.data.RedoData;
 import com.alibaba.nacos.client.naming.remote.gprc.redo.data.SubscriberRedoData;
 import com.alibaba.nacos.client.utils.LogUtils;
 import com.alibaba.nacos.common.task.AbstractExecuteTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 重试
@@ -32,7 +34,8 @@ import com.alibaba.nacos.common.task.AbstractExecuteTask;
  * @author xiweng.yy
  */
 public class RedoScheduledTask extends AbstractExecuteTask {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(RedoScheduledTask.class);
     private final NamingGrpcClientProxy clientProxy;
     
     private final NamingGrpcRedoService redoService;
@@ -79,6 +82,7 @@ public class RedoScheduledTask extends AbstractExecuteTask {
                 if (isClientDisabled()) {
                     return;
                 }
+                log.info("redoForInstance::注册了，进来了！！！{}", serviceName);
                 clientProxy.doRegisterService(serviceName, groupName, redoData.get());
                 break;
             case UNREGISTER:

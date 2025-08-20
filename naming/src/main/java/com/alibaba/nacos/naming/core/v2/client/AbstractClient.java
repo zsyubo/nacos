@@ -66,7 +66,7 @@ public abstract class AbstractClient implements Client {
     @Override
     public boolean addServiceInstance(Service service, InstancePublishInfo instancePublishInfo) {
         if (null == publishers.put(service, instancePublishInfo)) {
-            // 如果是Null, 则证明是第一次注册
+            // 如果是Null, 则证明是第一次注册。，，，里面是监控逻辑用的
             MetricsMonitor.incrementInstanceCount();
         }
         NotifyCenter.publishEvent(new ClientEvent.ClientChangedEvent(this));

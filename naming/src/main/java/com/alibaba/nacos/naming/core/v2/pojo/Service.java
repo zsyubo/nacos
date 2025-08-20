@@ -37,7 +37,10 @@ public class Service implements Serializable {
     private final String group;
     
     private final String name;
-    
+
+    /**
+     * 是否持久化实例
+     */
     private final boolean ephemeral;
     
     private final AtomicLong revision;

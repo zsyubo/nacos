@@ -61,7 +61,15 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
         this.metadataManager = metadataManager;
         this.clientOperationService = clientOperationService;
     }
-    
+
+    /**
+     * 发送逻辑在  com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy#doSubscribe(java.lang.String, java.lang.String, java.lang.String)
+     *
+     * @param request request
+     * @param meta    request meta data
+     * @return
+     * @throws NacosException
+     */
     @Override
     @Secured(action = ActionTypes.READ, parser = NamingResourceParser.class)
     public SubscribeServiceResponse handle(SubscribeServiceRequest request, RequestMeta meta) throws NacosException {

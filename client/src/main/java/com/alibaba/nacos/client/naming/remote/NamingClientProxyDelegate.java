@@ -162,10 +162,12 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
         String serviceNameWithGroup = NamingUtils.getGroupedName(serviceName, groupName);
         //DEFAULT_GROUP@@nacos-reg-service@@DEFAULT
         String serviceKey = ServiceInfo.getKey(serviceNameWithGroup, clusters);
-        //去订阅更新  里面有一个UpdateTask
+        //去订阅更新  里面有一个UpdateTask   # ServiceInfoUpdateService
+        // 这里面更新是按照groupName来的，也就是只有订阅了才去拉去，不然不拉取
         serviceInfoUpdateService.scheduleUpdateIfAbsent(serviceName, groupName, clusters);
         ServiceInfo result = serviceInfoHolder.getServiceInfoMap().get(serviceKey);
         if (null == result) {
+            // 订阅逻辑
             result = grpcClientProxy.subscribe(serviceName, groupName, clusters);
         }
         serviceInfoHolder.processServiceInfo(result);
@@ -189,6 +191,7 @@ public class NamingClientProxyDelegate implements NamingClientProxy {
     }
     
     private NamingClientProxy getExecuteClientProxy(Instance instance) {
+        // 是否是临时实例，true是。。。。大部分都是临时实例
         return instance.isEphemeral() ? grpcClientProxy : httpClientProxy;
     }
     
